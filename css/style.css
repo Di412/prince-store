@@ -1,0 +1,21 @@
+/* PRINCE STORE - gaya kustom */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #FFD700;
+}
+::-webkit-scrollbar-thumb {
+    background: #f7ff05;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #090909;
+}
+.neon-border {
+    box-shadow: 0 0 15px rgba(17, 25, 26, 0.25);
+}
+.neon-glow {
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
+}
