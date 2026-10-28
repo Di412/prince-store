@@ -13,14 +13,13 @@
 <body>
 
 <!-- LOGIN ADMIN -->
-<div id="authOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;display:flex;justify-content:center;align-items:center;z-index:9999;">
+<div id="authOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;display:none;justify-content:center;align-items:center;z-index:9999;">
   <div style="background:white;padding:30px;border-radius:12px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3);width:300px;">
     <h3 style="margin-bottom:15px;color:#1e293b;">Dashboard Keuangan</h3>
     <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Masukkan password admin untuk melanjutkan</p>
     <input type="password" id="pinInput" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPin()" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;text-align:center;font-size:16px;">
     <p id="authErr" role="alert" style="color:red;font-size:12px;height:15px;"></p>
-    <button onclick="checkPin()" style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Buka Dashboard</button>
-  </div>
+    <button type="button" onclick="checkPin()" style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Buka Dashboard</button>  </div>
 </div>
 
 <div class="app">
@@ -43,7 +42,9 @@
       <button class="nav" data-v="katalog" data-s="Katalog">Katalog produk</button>
       <div class="grp">Keamanan</div>
       <button class="nav" data-v="blokir" data-s="Blokir">Daftar blokir</button>
-      <button class="nav" data-logout>Keluar</button>
+      <button type="button" class="nav" onclick="logoutAdmin()" style="color: #ef4444; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+    🚪 Keluar
+</button>
     </nav>
   </aside>
   
@@ -298,7 +299,7 @@
   .proof-btn:hover{background:#334155;color:#fff}
   .proof-body{flex:1;overflow:auto;padding:18px;display:flex;align-items:center;justify-content:center;
     min-height:240px;background:#020617}
-  .proof-image{max-width:100%;max-height:70vh;border-radius:8px;cursor:zoom-in;transition:transform .3s}
+  .proof-image{width:100%;max-width:800px;height:auto;border-radius:8px;display:block;margin:0 auto;}
   .proof-image.zoom{transform:scale(1.9);cursor:zoom-out}
   .proof-pdf{width:100%;height:70vh;border:0;border-radius:8px;background:#fff}
   .proof-loading{text-align:center;color:#94a3b8}

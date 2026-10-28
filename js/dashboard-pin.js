@@ -33,3 +33,38 @@ async function checkPin() {
         pinInput.value = "";
     }
 }
+
+// =========================================================
+// FITUR: Cek Login Otomatis Saat Halaman Di-Refresh (Ctrl+Shift+R)
+// =========================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('admin_token');
+    const overlay = document.getElementById('authOverlay');
+
+    if (token) {
+        // Jika token ada, sembunyikan kotak login
+        if (overlay) overlay.style.display = 'none';
+        
+        // Panggil data pesanan (beri jeda sedikit agar file dashboard-app.js siap)
+        setTimeout(() => {
+            if (typeof loadOrders === 'function') {
+                loadOrders();
+            }
+        }, 100);
+    } else {
+        // Jika tidak ada token, pastikan kotak login muncul
+        if (overlay) overlay.style.display = 'flex';
+    }
+});
+// =========================================================
+// FITUR LOGOUT ADMIN
+// =========================================================
+function logoutAdmin() {
+    if (confirm("Apakah Anda yakin ingin keluar dari Dashboard?")) {
+        // Hapus token login dari memori browser
+        localStorage.removeItem('admin_token');
+        
+        // Reload halaman agar kembali ke tampilan login
+        window.location.reload();
+    }
+}
