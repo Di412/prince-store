@@ -40,7 +40,6 @@ function updateHeroSummary() {
 }
 
 // --- 3. FUNGSI MENAMPILKAN KARTU PESANAN ---
-// --- 3. FUNGSI MENAMPILKAN KARTU PESANAN ---
 function renderOrderList(ordersToRender) {
     const ordWait = document.getElementById('ord-wait');
     let htmlWaiting = "", htmlDone = "", countWaiting = 0;
@@ -67,7 +66,7 @@ function renderOrderList(ordersToRender) {
             actionButton = `<button onclick="hapusRiwayat('${order.id_transaksi}')" style="margin-top:10px; background:#ef4444; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Hapus Riwayat</button>`;
         }
 
-        // >>> TAMBAHAN: TOMBOL LIHAT BUKTI <<<
+        // TOMBOL LIHAT BUKTI
         const proofUrl = getProofUrl(order);
         const safeId = JSON.stringify(String(order.id_transaksi || ''));
         const safeWa = JSON.stringify(String(order.wa || ''));
@@ -266,13 +265,22 @@ function renderCatalog() {
 
     katList.innerHTML = catalogGames.map((g, gi) => {
         const label = GAME_LABEL[String(g).toLowerCase()] || String(g).toUpperCase();
+        
+        // PEMBARUAN: Grid 5 Kolom (Nama, Harga Jual, Harga Coret, Stok, Promo)
         const rows = groups[g].map(i => {
             const p = catalogData[i];
-            return `<div style="display:grid; grid-template-columns:1fr 160px; gap:10px; margin-bottom:8px;">
-                <input id="kat-nama-${i}" type="text" value="${escAttr(p.nama)}" placeholder="Nama produk"
-                    oninput="catalogEdit(${i}, 'nama', this.value)" style="${inputStyle}">
-                <input type="number" min="0" step="500" value="${Number(p.harga) || 0}" placeholder="Harga"
-                    oninput="catalogEdit(${i}, 'harga', this.value)" style="${inputStyle}">
+            return `<div style="display:grid; grid-template-columns:1fr 100px 100px 70px 60px; gap:10px; margin-bottom:8px; align-items:center;">
+                <input id="kat-nama-${i}" type="text" value="${escAttr(p.nama)}" placeholder="Nama produk" oninput="catalogEdit(${i}, 'nama', this.value)" style="${inputStyle}">
+                
+                <input type="number" value="${Number(p.harga) || 0}" placeholder="Harga Jual" oninput="catalogEdit(${i}, 'harga', this.value)" style="${inputStyle}" title="Harga Jual (Setelah Diskon)">
+                
+                <input type="number" value="${Number(p.harga_asli) || 0}" placeholder="Harga Coret" oninput="catalogEdit(${i}, 'harga_asli', this.value)" style="${inputStyle}" title="Harga Asli Sebelum Diskon">
+                
+                <input type="number" value="${p.stok === -1 ? -1 : Number(p.stok) || 0}" placeholder="Stok" oninput="catalogEdit(${i}, 'stok', this.value)" style="${inputStyle}" title="-1 = Tak Terbatas">
+                
+                <label style="display:flex; align-items:center; gap:5px; font-size:12px; cursor:pointer;" title="Tampilkan di Banner Promo">
+                    <input type="checkbox" ${p.is_promo ? 'checked' : ''} onchange="catalogEdit(${i}, 'is_promo', this.checked)"> Promo
+                </label>
             </div>`;
         }).join('');
 
@@ -283,22 +291,28 @@ function renderCatalog() {
                 </h2>
                 <button class="pri" onclick="catalogAdd(${gi})">+ Tambah produk</button>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 160px; gap:10px; margin-bottom:6px; font-size:12px; color:var(--muted); font-weight:700;">
-                <span>Nama produk</span><span>Harga (Rp)</span>
+            <div style="display:grid; grid-template-columns:1fr 100px 100px 70px 60px; gap:10px; margin-bottom:6px; font-size:12px; color:var(--muted); font-weight:700;">
+                <span>Nama Produk</span><span>Harga Jual</span><span>Harga Coret</span><span>Stok</span><span>Promo?</span>
             </div>
             ${rows}
         </div>`;
     }).join('');
 }
 
+// PEMBARUAN: Menangani input angka untuk Stok, Harga Asli, dan Harga Jual
 function catalogEdit(i, field, val) {
-    catalogData[i][field] = (field === 'harga') ? Number(val) : val;
+    if (['harga', 'harga_asli', 'stok'].includes(field)) {
+        catalogData[i][field] = Number(val);
+    } else {
+        catalogData[i][field] = val;
+    }
     const st = document.getElementById('kat-status');
     if (st) st.textContent = 'Ada perubahan, tekan Simpan.';
 }
 
 function catalogAdd(gi) {
-    catalogData.push({ game: catalogGames[gi], nama: '', harga: 0 });
+    // Tambahkan nilai default untuk field baru
+    catalogData.push({ game: catalogGames[gi], nama: '', harga: 0, harga_asli: 0, stok: -1, is_promo: 0 });
     renderCatalog();
     const el = document.getElementById(`kat-nama-${catalogData.length - 1}`);
     if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); }
@@ -318,7 +332,14 @@ async function saveCatalog() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                products: catalogData.map(p => ({ ...p, nama: String(p.nama).trim(), harga: Number(p.harga) }))
+                products: catalogData.map(p => ({ 
+                    ...p, 
+                    nama: String(p.nama).trim(), 
+                    harga: Number(p.harga),
+                    harga_asli: Number(p.harga_asli) || 0,
+                    stok: p.stok === undefined || p.stok === null ? -1 : Number(p.stok),
+                    is_promo: p.is_promo ? 1 : 0
+                }))
             })
         });
         await loadCatalogAdmin();
@@ -673,7 +694,7 @@ async function savePayments() {
         $('proofModalBody').innerHTML = '';
         $('proofModalBody').appendChild(img);
         $('proofModalMeta').textContent = `Order: ${orderId} • Klik gambar untuk zoom`;
-        img.onclick = () => img.classList.toggle('zoom');
+        img.onclick = () => window.open(finalUrl, '_blank');
         
         // Atur tombol unduh
         const dl = $('proofDownloadBtn');

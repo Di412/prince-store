@@ -48,18 +48,24 @@ function renderNominalItems(gameKey) {
     const nominalGrid = document.getElementById('nominalGrid');
     nominalGrid.innerHTML = '';
     
-    // Hanya merender item yang ada di dalam game tersebut
     data.items.forEach(item => {
         const card = document.createElement('div');
-        const soldOut = item.stock === 0;
+        const soldOut = item.stok === 0;
+        
         card.className = `border border-cardBorder rounded-xl p-4 bg-slate-900/60 transition-all duration-200 relative item-card ${soldOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-neonCyan hover:bg-slate-900'}`;
         card.dataset.itemId = item.id;
-        if (!soldOut) card.onclick = () => selectNominal(item, card);
         
-        const badgeText = soldOut ? 'Stok Habis' : item.badge;
+        if (!soldOut) {
+            card.onclick = () => selectNominal(item, card);
+        }
+        
+        // Label Stok Habis atau Badge Promo
+        const badgeText = soldOut ? 'Stok Habis' : (item.is_promo ? 'PROMO' : item.badge);
         if (badgeText) {
             const badge = document.createElement('span');
-            badge.className = 'absolute top-2 right-2 text-[9px] font-black bg-neonCyan/20 text-neonCyan border border-neonCyan/30 px-2 py-0.5 rounded-full';
+            badge.className = soldOut 
+                ? 'absolute top-2 right-2 text-[9px] font-black bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-0.5 rounded-full'
+                : 'absolute top-2 right-2 text-[9px] font-black bg-neonCyan/20 text-neonCyan border border-neonCyan/30 px-2 py-0.5 rounded-full';
             badge.textContent = badgeText;
             card.appendChild(badge);
         }
@@ -68,11 +74,23 @@ function renderNominalItems(gameKey) {
         name.className = 'text-sm font-bold text-white mb-1 pr-8';
         name.textContent = item.name;
         
+        const priceContainer = document.createElement('div');
+        priceContainer.className = 'flex flex-col';
+        
+        // Tampilkan Harga Coret (jika ada diskon)
+        if (!soldOut && Number(item.harga_asli) > Number(item.price)) {
+            const oldPrice = document.createElement('span');
+            oldPrice.className = 'text-[10px] line-through text-slate-500';
+            oldPrice.textContent = `Rp ${Number(item.harga_asli).toLocaleString('id-ID')}`;
+            priceContainer.appendChild(oldPrice);
+        }
+        
         const price = document.createElement('div');
         price.className = 'text-xs text-neonCyan font-extrabold';
-        price.textContent = `Rp ${item.price.toLocaleString('id-ID')}`;
+        price.textContent = `Rp ${Number(item.price).toLocaleString('id-ID')}`;
         
-        card.append(name, price);
+        priceContainer.appendChild(price);
+        card.append(name, priceContainer);
         nominalGrid.appendChild(card);
     });
 
@@ -159,11 +177,11 @@ function updateSummary() {
     }
     document.getElementById('summaryAccount').innerText = targetAcc;
 
-    const price = selectedItem ? selectedItem.price : 0;
+    const price = selectedItem ? Number(selectedItem.price) : 0;
     document.getElementById('summaryItem').innerText = selectedItem ? selectedItem.name : '-';
     document.getElementById('summaryPrice').innerText = `Rp ${price.toLocaleString('id-ID')}`;
 
-    const fee = selectedPayment ? selectedPayment.fee : 0;
+    const fee = selectedPayment ? Number(selectedPayment.fee) : 0;
     document.getElementById('summaryPayment').innerText = selectedPayment ? selectedPayment.name : '-';
     document.getElementById('summaryFee').innerText = `Rp ${fee.toLocaleString('id-ID')}`;
 

@@ -82,21 +82,22 @@
                         <span class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-neonCyan"></i> Support 24/7</span>
                     </div>
                 </div>
-                <!-- Banner Graphic Card -->
+                
+                <!-- Banner Graphic Card (DINAMIS) -->
                 <div class="w-full md:w-80 bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-2xl relative overflow-hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-crown text-yellow-400 text-lg"></i>
-                            <span class="font-bold text-sm text-white">Weekly Diamond Pass</span>
+                            <span id="promoTitle" class="font-bold text-sm text-white">Memuat Promo...</span>
                         </div>
-                        <span class="text-xs bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded">HEMAT 50%</span>
+                        <span id="promoBadge" class="text-xs bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded hidden">HEMAT</span>
                     </div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <span class="text-xs text-slate-400 line-through">Rp 32.000</span>
-                            <div class="text-xl font-extrabold text-neonCyan">Rp 27.500</div>
+                            <span id="promoOldPrice" class="text-xs text-slate-400 line-through hidden"></span>
+                            <div id="promoNewPrice" class="text-xl font-extrabold text-neonCyan">-</div>
                         </div>
-                        <button onclick="quickSelectMLBB()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs px-3 py-2 rounded-lg transition-all">
+                        <button id="promoBtn" onclick="selectGame('mlbb')" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs px-3 py-2 rounded-lg transition-all">
                             Beli Sekarang
                         </button>
                     </div>
@@ -121,7 +122,7 @@
                 <div onclick="selectGame('mlbb')" id="card-mlbb" class="game-card group cursor-pointer bg-cardBg border border-cardBorder hover:border-neonCyan/80 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
                     <div class="absolute top-3 right-3 z-10">
                         <span class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-extrabold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-md">
-                            </i> Moonton Official
+                            Moonton Official
                         </span>
                     </div>
                     <div class="flex items-center gap-4">
@@ -142,7 +143,7 @@
                 <div onclick="selectGame('ff')" id="card-ff" class="game-card group cursor-pointer bg-cardBg border border-cardBorder hover:border-neonCyan/80 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
                     <div class="absolute top-3 right-3 z-10">
                         <span class="bg-gradient-to-r from-red-500 to-rose-600 text-white font-extrabold text-[10px] uppercase px-2.5 py-1 rounded-full shadow-md">
-                            </i> Garena Free Fire
+                            Garena Free Fire
                         </span>
                     </div>
                     <div class="flex items-center gap-4">
@@ -583,11 +584,36 @@
         </div>
     </div>
 
+    <!-- ===================================================== -->
+    <!-- MODAL: LIHAT BUKTI PEMBAYARAN (customer)              -->
+    <!-- ===================================================== -->
+    <div id="proofViewerModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-[75] hidden p-4 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-lg w-full p-4 shadow-2xl relative">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="font-display font-bold text-white">Bukti Pembayaran</h3>
+              <p id="proofViewerMeta" class="text-[11px] text-slate-400"></p>
+            </div>
+            <div class="flex gap-2">
+              <a id="proofViewerDownload" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg border border-slate-700" download target="_blank" rel="noopener">
+                <i class="fa-solid fa-download"></i> Unduh
+              </a>
+              <button onclick="closeCustomerProof()" class="text-slate-400 hover:text-white p-2" aria-label="Tutup">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+          <div id="proofViewerBody" class="min-h-[240px] flex items-center justify-center bg-black/40 rounded-xl p-2"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script src="js/data.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/order.js"></script>
-    <script src="js/track.js?v=3"></script>
+    <script src="js/track.js?v=4"></script>
     <script src="js/helpers.js"></script>
     <script src="js/banner.js"></script>
     <script src="js/api.js"></script>
