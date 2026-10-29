@@ -9,6 +9,122 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <link rel="stylesheet" href="css/dashboard-ui.css">
+<style>
+  /* ==========================================
+     CSS KATALOG (PROMO & MOBILE/DESKTOP)
+     ========================================== */
+  
+  /* Style dasar label promo */
+  .promo-label {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 5px; 
+    font-size: 14px; 
+    cursor: pointer; 
+    height: 100%; 
+    box-sizing: border-box;
+  }
+
+  /* Tampilan Katalog di HP (Mobile) */
+  @media (max-width: 768px) {
+    .kat-grid-header { display: none !important; }
+    .mobile-label { display: block !important; }
+
+    .kat-grid-row { 
+      display: flex !important; 
+      flex-direction: column !important; 
+      gap: 8px !important; 
+      padding: 12px; 
+      border: 1px solid var(--line); 
+      border-radius: 8px; 
+      margin-bottom: 12px; 
+      background: var(--card); 
+    }
+    
+    .kat-mobile-row { 
+      display: grid !important; 
+      grid-template-columns: 1fr 1fr !important; 
+      gap: 8px !important; 
+    }
+    
+    .kat-grid-row input {
+      background: var(--bg) !important; 
+    }
+
+    /* Kotak Promo di HP */
+    .promo-label {
+      background: var(--card); 
+      border: 1px solid var(--line); 
+      border-radius: 8px; 
+      padding: 10px;
+    }
+  }
+
+  /* Tampilan Desktop (Laptop) */
+  @media (min-width: 769px) {
+    .kat-mobile-row { display: contents !important; }
+    
+    .kat-grid-header, .kat-grid-row {
+      display: grid !important;
+      /* Perlebar kolom promo jadi 80px agar tidak sesak */
+      grid-template-columns: 1fr 90px 90px 90px 60px 80px !important; 
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .kat-grid-header {
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    
+    .kat-grid-row {
+      margin-bottom: 8px;
+    }
+
+    /* Menghapus kotak border di laptop agar terlihat rapi */
+    .promo-label {
+      justify-content: flex-start; /* Rata kiri */
+      padding: 0; 
+      background: transparent;
+      border: none;
+    }
+  }
+
+  /* ==========================================
+     CSS MODAL BUKTI PEMBAYARAN
+     ========================================== */
+  #proofModal[hidden]{display:none!important}
+  #proofModal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center}
+  .proof-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px)}
+  .proof-dialog{position:relative;z-index:1;background:#0f172a;color:#e2e8f0;border:1px solid #334155;
+    border-radius:16px;width:min(94vw,860px);max-height:92vh;display:flex;flex-direction:column;
+    box-shadow:0 25px 60px rgba(0,0,0,.6);overflow:hidden}
+  .proof-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #334155}
+  .proof-head h3{margin:0;font-size:1rem;font-weight:800;color:#fff}
+  #proofModalMeta{margin:2px 0 0;font-size:.75rem;color:#94a3b8}
+  .proof-actions{display:flex;gap:8px}
+  .proof-btn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;
+    padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px}
+  .proof-btn:hover{background:#334155;color:#fff}
+  .proof-body{flex:1;overflow:auto;padding:18px;display:flex;align-items:center;justify-content:center;
+    min-height:240px;background:#020617}
+  .proof-image{width:100%;max-width:800px;height:auto;border-radius:8px;display:block;margin:0 auto;}
+  .proof-image.zoom{transform:scale(1.9);cursor:zoom-out}
+  .proof-pdf{width:100%;height:70vh;border:0;border-radius:8px;background:#fff}
+  .proof-loading{text-align:center;color:#94a3b8}
+  .proof-spinner{width:38px;height:38px;border:4px solid #334155;border-top-color:#22d3ee;
+    border-radius:50%;margin:0 auto 12px;animation:proofspin 1s linear infinite}
+  @keyframes proofspin{to{transform:rotate(360deg)}}
+  .proof-error{text-align:center;color:#fca5a5;max-width:420px}
+  .proof-error__icon{font-size:2rem;margin-bottom:8px}
+  .proof-error__msg{font-weight:700;color:#fecaca}
+  .proof-error__hint{font-size:.8rem;color:#94a3b8;margin-top:6px}
+  body.proof-modal-open{overflow:hidden}
+</style>
 </head>
 <body>
 
@@ -19,7 +135,8 @@
     <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Masukkan password admin untuk melanjutkan</p>
     <input type="password" id="pinInput" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPin()" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;text-align:center;font-size:16px;">
     <p id="authErr" role="alert" style="color:red;font-size:12px;height:15px;"></p>
-    <button type="button" onclick="checkPin()" style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Buka Dashboard</button>  </div>
+    <button type="button" onclick="checkPin()" style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Buka Dashboard</button>  
+  </div>
 </div>
 
 <div class="app">
@@ -42,9 +159,11 @@
       <button class="nav" data-v="katalog" data-s="Katalog">Katalog produk</button>
       <div class="grp">Keamanan</div>
       <button class="nav" data-v="blokir" data-s="Blokir">Daftar blokir</button>
-      <button type="button" class="nav" onclick="logoutAdmin()" style="color: #ef4444; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-    🚪 Keluar
-</button>
+      
+      <!-- TOMBOL KELUAR -->
+      <button type="button" class="nav" onclick="logoutAdmin()" style="background-color: #ebe2e2; color: #e81616; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 20px; width: 85%;">
+        Logout
+      </button>
     </nav>
   </aside>
   
@@ -53,7 +172,7 @@
   <!-- KONTEN UTAMA -->
   <main class="main">
     
-    <!-- HEADER DIPERBAIKI -->
+    <!-- HEADER -->
     <header class="top" style="display: flex; flex-direction: column; gap: 15px; border-bottom: none; padding-bottom: 0;">
       <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <div style="display: flex; align-items: center; gap: 15px;">
@@ -62,23 +181,6 @@
         </div>
         <button id="theme-toggle" class="ghost" style="font-size:0.8rem; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer;">🌙 Mode</button>
       </div>
-
-      <!-- KOTAK KUNING LABA BERSIH (Sekarang di bawah judul) -->
-     <div class="hero" style="width: 100%; margin-bottom: 10px;">
-  <div class="hl">Laba Bersih</div>
-  <div class="hv" id="h-bersih">Rp 0</div>
-  <div class="hp">
-    <div><small>Penjualan</small><b id="h-jual">-</b></div>
-    <div><small>Total pengurang</small><b id="h-cut">-</b></div>
-  </div>
-
-  <div class="hp" style="margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">
-    <div><small>Total Masuk</small><b id="st-total">0</b></div>
-    <div><small>Perlu Diproses</small><b id="st-proses">0</b></div>
-    <div><small>Menunggu Bayar</small><b id="st-bayar">0</b></div>
-    <div><small>Selesai</small><b id="st-selesai">0</b></div>
-  </div>
-</div>
     </header>
 
     <div class="sub" id="updated" style="margin-bottom: 20px;">Memuat data…</div>
@@ -91,7 +193,25 @@
 
     <!-- SECTION: BERANDA -->
     <section id="sec-home">
-      <div class="welcome"><h2>Halo Bos, Prince</h2><p>Selamat datang kembali. Pantau pesanan, bukti pembayaran, dan katalog toko dari satu tempat.</p></div>
+      
+      <!-- KOTAK KUNING LABA BERSIH & GRAFIK (Khusus Beranda) -->
+      <div class="hero" style="width: 100%; margin-bottom: 20px;">
+        <div class="hl">Laba Bersih</div>
+        <div class="hv" id="h-bersih">Rp 0</div>
+        <div class="hp">
+          <div><small>Penjualan</small><b id="h-jual">-</b></div>
+          <div><small>Modal</small><b id="h-cut">-</b></div>
+        </div>
+
+        <div class="hp" style="margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">
+          <div><small>Total Masuk</small><b id="st-total">0</b></div>
+          <div><small>Perlu Diproses</small><b id="st-proses">0</b></div>
+          <div><small>Menunggu Bayar</small><b id="st-bayar">0</b></div>
+          <div><small>Selesai</small><b id="st-selesai">0</b></div>
+        </div>
+      </div>
+      <!-- (Tombol aksi cepat disisipkan otomatis oleh JS di bawah sini) -->
+
       <div class="cards">
         <div class="card"><div class="l">Perlu diproses</div><div class="v" id="home-waiting">0</div></div>
         <div class="card"><div class="l">Ditandai (cek dulu)</div><div class="v" id="home-flag">0</div></div>
@@ -99,7 +219,7 @@
         <div class="card"><div class="l">Pesanan selesai</div><div class="v" id="home-done">0</div></div>
         <div class="card"><div class="l">Produk aktif</div><div class="v" id="home-products">0</div></div>
       </div>
-      <div class="panel"><h2>Mulai dari sini</h2><p class="note">Gunakan menu Pesanan Masuk untuk memeriksa pembayaran dan menerbitkan struk. Atur rekening/e-wallet pada menu Pembayaran.</p></div>
+      
     </section>
 
     <!-- SECTION: PESANAN -->
@@ -194,7 +314,7 @@
       <div class="cards">
         <div class="card"><div class="l">Penjualan</div><div class="v" id="k-jual">-</div></div>
         <div class="card"><div class="l">Laba kotor</div><div class="v" id="k-kotor">-</div></div>
-        <div class="card"><div class="l">Total pengurang</div><div class="v" id="k-cut">-</div></div>
+        <div class="card"><div class="l">Modal</div><div class="v" id="k-cut">-</div></div>
         <div class="card"><div class="l">Laba bersih</div><div class="v good" id="k-bersih">-</div></div>
       </div>
       <div class="panel"><h2>Laba rugi</h2><div class="scroll" id="t-lr"></div></div>
@@ -235,7 +355,7 @@
       </div>
 
       <button class="pri" id="kat-save" onclick="saveCatalog()" style="margin-top:6px;">Simpan</button>
-<button class="ghost" id="kat-reset" style="display:none">Muat ulang dari server</button>
+      <button class="ghost" id="kat-reset" style="display:none">Muat ulang dari server</button>
     </section>
 
     <!-- SECTION: BLOKIR -->
@@ -257,12 +377,14 @@
 
   </main>
 </div>
+
+<!-- SCRIPT JS -->
 <script src="js/dashboard-pin.js"></script>
-<script src="js/dashboard-app.js"></script>
+<script src="js/dashboard-app.js?v=7"></script>
 <script src="js/dashboard-summary.js"></script>
 <script src="js/dashboard-cf.js"></script>
-<script src="js/dashboard-recap.js"></script>
-<script src="js/dashboard-ui.js"></script>
+<script src="js/dashboard-recap.js?v=2"></script>
+<script src="js/dashboard-ui.js?v=12"></script>
 
 <!-- ============ MODAL BUKTI PEMBAYARAN ============ -->
 <div id="proofModal" hidden>
@@ -282,36 +404,5 @@
   </div>
 </div>
 
-<style>
-  #proofModal[hidden]{display:none!important}
-  #proofModal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center}
-  .proof-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px)}
-  .proof-dialog{position:relative;z-index:1;background:#0f172a;color:#e2e8f0;border:1px solid #334155;
-    border-radius:16px;width:min(94vw,860px);max-height:92vh;display:flex;flex-direction:column;
-    box-shadow:0 25px 60px rgba(0,0,0,.6);overflow:hidden}
-  .proof-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #334155}
-  .proof-head h3{margin:0;font-size:1rem;font-weight:800;color:#fff}
-  #proofModalMeta{margin:2px 0 0;font-size:.75rem;color:#94a3b8}
-  .proof-actions{display:flex;gap:8px}
-  .proof-btn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;
-    padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;
-    display:inline-flex;align-items:center;gap:6px}
-  .proof-btn:hover{background:#334155;color:#fff}
-  .proof-body{flex:1;overflow:auto;padding:18px;display:flex;align-items:center;justify-content:center;
-    min-height:240px;background:#020617}
-  .proof-image{width:100%;max-width:800px;height:auto;border-radius:8px;display:block;margin:0 auto;}
-  .proof-image.zoom{transform:scale(1.9);cursor:zoom-out}
-  .proof-pdf{width:100%;height:70vh;border:0;border-radius:8px;background:#fff}
-  .proof-loading{text-align:center;color:#94a3b8}
-  .proof-spinner{width:38px;height:38px;border:4px solid #334155;border-top-color:#22d3ee;
-    border-radius:50%;margin:0 auto 12px;animation:proofspin 1s linear infinite}
-  @keyframes proofspin{to{transform:rotate(360deg)}}
-  .proof-error{text-align:center;color:#fca5a5;max-width:420px}
-  .proof-error__icon{font-size:2rem;margin-bottom:8px}
-  .proof-error__msg{font-weight:700;color:#fecaca}
-  .proof-error__hint{font-size:.8rem;color:#94a3b8;margin-top:6px}
-  body.proof-modal-open{overflow:hidden}
-</style>
-<!-- ============ /MODAL BUKTI PEMBAYARAN ============ -->
 </body>
 </html>

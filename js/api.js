@@ -16,6 +16,9 @@ async function apiRequest(path, options) {
   return data;
 }
 
+// Dipakai oleh track.js
+window.apiRequest = apiRequest;
+
 window.saveOrderToFirebase = orderData =>
   apiRequest('/api/orders', {
     method: 'POST',
@@ -25,12 +28,14 @@ window.saveOrderToFirebase = orderData =>
       produk_id: orderData.produk_id,
       metode_id: orderData.metode_id,
       target: orderData.target,
+      nama: orderData.nama,
       wa: orderData.wa
     })
   });
 
-window.lookupCustomerOrder = (orderId, wa) =>
-  apiRequest(`/api/orders/${encodeURIComponent(orderId)}?wa=${encodeURIComponent(wa || '')}`);
+// Lacak pesanan cukup dengan ID transaksi (tanpa nomor WA)
+window.lookupCustomerOrder = orderId =>
+  apiRequest(`/api/orders/${encodeURIComponent(orderId)}`);
 
 window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -55,7 +60,7 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
     if (!res.ok) {
       throw new Error((data && data.error) || `Gagal upload bukti (${res.status}).`);
     }
-    
+
     return data;
   } catch (error) {
     console.error("Upload Error:", error);
@@ -73,7 +78,7 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
     Object.entries(catalog.products || {}).forEach(([gameKey, items]) => {
       if (!gameData[gameKey]) return;
       gameData[gameKey].items = items;
-      
+
       // Cari produk yang dicentang promo
       items.forEach(item => {
         if (item.is_promo === 1 && !promoItem && item.stok !== 0) {
@@ -90,39 +95,39 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
 
     // Tampilkan Banner Promo Dinamis
     if (promoItem) {
-        const titleEl = document.getElementById('promoTitle');
-        const priceEl = document.getElementById('promoNewPrice');
-        const oldPriceEl = document.getElementById('promoOldPrice');
-        const badgeEl = document.getElementById('promoBadge');
-        const btnEl = document.getElementById('promoBtn');
+      const titleEl = document.getElementById('promoTitle');
+      const priceEl = document.getElementById('promoNewPrice');
+      const oldPriceEl = document.getElementById('promoOldPrice');
+      const badgeEl = document.getElementById('promoBadge');
+      const btnEl = document.getElementById('promoBtn');
 
-        if (titleEl) {
-            titleEl.innerText = promoItem.name;
-            priceEl.innerText = `Rp ${Number(promoItem.price).toLocaleString('id-ID')}`;
-            
-            // Jika ada harga coret (diskon)
-            if (Number(promoItem.harga_asli) > Number(promoItem.price)) {
-                oldPriceEl.innerText = `Rp ${Number(promoItem.harga_asli).toLocaleString('id-ID')}`;
-                oldPriceEl.classList.remove('hidden');
-                
-                const diskon = Math.round(((promoItem.harga_asli - promoItem.price) / promoItem.harga_asli) * 100);
-                badgeEl.innerText = `HEMAT ${diskon}%`;
-                badgeEl.classList.remove('hidden');
-            } else {
-                oldPriceEl.classList.add('hidden');
-                badgeEl.classList.add('hidden');
-            }
-            
-            // Tombol langsung menuju ke produk promo
-            btnEl.onclick = () => {
-                resetView(); 
-                selectGame(promoGame);
-                setTimeout(() => {
-                    const itemCard = document.querySelector(`.item-card[data-item-id="${promoItem.id}"]`);
-                    if (itemCard) selectNominal(promoItem, itemCard);
-                }, 100);
-            };
+      if (titleEl) {
+        titleEl.innerText = promoItem.name;
+        priceEl.innerText = `Rp ${Number(promoItem.price).toLocaleString('id-ID')}`;
+
+        // Jika ada harga coret (diskon)
+        if (Number(promoItem.harga_asli) > Number(promoItem.price)) {
+          oldPriceEl.innerText = `Rp ${Number(promoItem.harga_asli).toLocaleString('id-ID')}`;
+          oldPriceEl.classList.remove('hidden');
+
+          const diskon = Math.round(((promoItem.harga_asli - promoItem.price) / promoItem.harga_asli) * 100);
+          badgeEl.innerText = `HEMAT ${diskon}%`;
+          badgeEl.classList.remove('hidden');
+        } else {
+          oldPriceEl.classList.add('hidden');
+          badgeEl.classList.add('hidden');
         }
+
+        // Tombol langsung menuju ke produk promo
+        btnEl.onclick = () => {
+          resetView();
+          selectGame(promoGame);
+          setTimeout(() => {
+            const itemCard = document.querySelector(`.item-card[data-item-id="${promoItem.id}"]`);
+            if (itemCard) selectNominal(promoItem, itemCard);
+          }, 100);
+        };
+      }
     }
 
     if (Array.isArray(catalog.paymentMethods) && catalog.paymentMethods.length) {

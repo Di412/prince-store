@@ -1,5 +1,4 @@
 // --- VARIABEL GLOBAL ---
-// Helper: ambil URL bukti dari berbagai kemungkinan nama field
 function getProofUrl(order) {
     if (!order) return '';
     return order.proof_url || order.bukti_url || order.proofUrl
@@ -15,10 +14,8 @@ async function loadOrders() {
 
     try {
         const orders = await apiFetch('/api/admin/orders');
-        globalOrdersData = orders; // Simpan data ke variabel global
+        globalOrdersData = orders; 
         renderOrderList(globalOrdersData);
-
-        // Update Kotak Kuning setiap kali data pesanan dimuat
         updateHeroSummary();
         renderFinancialReport();
     } catch (error) {
@@ -66,7 +63,6 @@ function renderOrderList(ordersToRender) {
             actionButton = `<button onclick="hapusRiwayat('${order.id_transaksi}')" style="margin-top:10px; background:#ef4444; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Hapus Riwayat</button>`;
         }
 
-        // TOMBOL LIHAT BUKTI
         const proofUrl = getProofUrl(order);
         const safeId = JSON.stringify(String(order.id_transaksi || ''));
         const safeWa = JSON.stringify(String(order.wa || ''));
@@ -225,11 +221,10 @@ function downloadExcel() {
     XLSX.writeFile(wb, `Laporan_PrinceStore_${new Date().getTime()}.xlsx`);
 }
 
-// --- 8. KATALOG PRODUK (dipisah per game, bisa tambah & simpan) ---
+// --- 8. KATALOG PRODUK ---
 let catalogData = [];
 let catalogGames = [];
 const GAME_LABEL = { ff: 'Free Fire', mlbb: 'Mobile Legends', roblox: 'Roblox' };
-
 const escAttr = s => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 async function loadCatalogAdmin() {
@@ -253,7 +248,6 @@ function renderCatalog() {
         return;
     }
 
-    // Kelompokkan produk per game
     const groups = {};
     catalogData.forEach((p, i) => {
         const g = p.game || 'lainnya';
@@ -266,21 +260,41 @@ function renderCatalog() {
     katList.innerHTML = catalogGames.map((g, gi) => {
         const label = GAME_LABEL[String(g).toLowerCase()] || String(g).toUpperCase();
         
-        // PEMBARUAN: Grid 5 Kolom (Nama, Harga Jual, Harga Coret, Stok, Promo)
         const rows = groups[g].map(i => {
             const p = catalogData[i];
-            return `<div style="display:grid; grid-template-columns:1fr 100px 100px 70px 60px; gap:10px; margin-bottom:8px; align-items:center;">
+            return `<div class="kat-grid-row">
                 <input id="kat-nama-${i}" type="text" value="${escAttr(p.nama)}" placeholder="Nama produk" oninput="catalogEdit(${i}, 'nama', this.value)" style="${inputStyle}">
                 
-                <input type="number" value="${Number(p.harga) || 0}" placeholder="Harga Jual" oninput="catalogEdit(${i}, 'harga', this.value)" style="${inputStyle}" title="Harga Jual (Setelah Diskon)">
+                <div class="kat-mobile-row">
+                    <div>
+                        <span style="display:none; font-size:10px; color:var(--muted); margin-bottom:2px;" class="mobile-label">Harga Modal</span>
+                        <input type="number" value="${Number(p.harga_modal) || 0}" placeholder="Harga Modal" oninput="catalogEdit(${i}, 'harga_modal', this.value)" style="${inputStyle}" title="Harga Modal (Dari Supplier)">
+                    </div>
+                    <div>
+                        <span style="display:none; font-size:10px; color:var(--muted); margin-bottom:2px;" class="mobile-label">Harga Jual</span>
+                        <input type="number" value="${Number(p.harga) || 0}" placeholder="Harga Jual" oninput="catalogEdit(${i}, 'harga', this.value)" style="${inputStyle}" title="Harga Jual ke Pembeli">
+                    </div>
+                </div>
                 
-                <input type="number" value="${Number(p.harga_asli) || 0}" placeholder="Harga Coret" oninput="catalogEdit(${i}, 'harga_asli', this.value)" style="${inputStyle}" title="Harga Asli Sebelum Diskon">
+                <div class="kat-mobile-row">
+                    <div>
+                        <span style="display:none; font-size:10px; color:var(--muted); margin-bottom:2px;" class="mobile-label">Harga Coret</span>
+                        <input type="number" value="${Number(p.harga_asli) || 0}" placeholder="Harga Coret" oninput="catalogEdit(${i}, 'harga_asli', this.value)" style="${inputStyle}" title="Harga Asli Sebelum Diskon">
+                    </div>
+                    <div>
+                        <span style="display:none; font-size:10px; color:var(--muted); margin-bottom:2px;" class="mobile-label">Stok</span>
+                        <input type="number" value="${p.stok === -1 ? -1 : Number(p.stok) || 0}" placeholder="Stok" oninput="catalogEdit(${i}, 'stok', this.value)" style="${inputStyle}" title="-1 = Tak Terbatas">
+                    </div>
+                </div>
                 
-                <input type="number" value="${p.stok === -1 ? -1 : Number(p.stok) || 0}" placeholder="Stok" oninput="catalogEdit(${i}, 'stok', this.value)" style="${inputStyle}" title="-1 = Tak Terbatas">
-                
-                <label style="display:flex; align-items:center; gap:5px; font-size:12px; cursor:pointer;" title="Tampilkan di Banner Promo">
-                    <input type="checkbox" ${p.is_promo ? 'checked' : ''} onchange="catalogEdit(${i}, 'is_promo', this.checked)"> Promo
-                </label>
+                <div class="kat-mobile-row" style="grid-template-columns: 1fr;">
+                    <div>
+                        <span style="display:none; font-size:10px; color:var(--muted); margin-bottom:2px;" class="mobile-label">Promo</span>
+                        <label class="promo-label" title="Tampilkan di Banner Promo">
+                            <input type="checkbox" ${p.is_promo ? 'checked' : ''} onchange="catalogEdit(${i}, 'is_promo', this.checked)"> Promo
+                        </label>
+                    </div>
+                </div>
             </div>`;
         }).join('');
 
@@ -291,17 +305,16 @@ function renderCatalog() {
                 </h2>
                 <button class="pri" onclick="catalogAdd(${gi})">+ Tambah produk</button>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 100px 100px 70px 60px; gap:10px; margin-bottom:6px; font-size:12px; color:var(--muted); font-weight:700;">
-                <span>Nama Produk</span><span>Harga Jual</span><span>Harga Coret</span><span>Stok</span><span>Promo?</span>
+            <div class="kat-grid-header">
+                <span>Nama Produk</span><span>Harga Modal</span><span>Harga Jual</span><span>Harga Coret</span><span>Stok</span><span>Promo?</span>
             </div>
             ${rows}
         </div>`;
     }).join('');
 }
 
-// PEMBARUAN: Menangani input angka untuk Stok, Harga Asli, dan Harga Jual
 function catalogEdit(i, field, val) {
-    if (['harga', 'harga_asli', 'stok'].includes(field)) {
+    if (['harga', 'harga_asli', 'harga_modal', 'stok'].includes(field)) {
         catalogData[i][field] = Number(val);
     } else {
         catalogData[i][field] = val;
@@ -311,8 +324,7 @@ function catalogEdit(i, field, val) {
 }
 
 function catalogAdd(gi) {
-    // Tambahkan nilai default untuk field baru
-    catalogData.push({ game: catalogGames[gi], nama: '', harga: 0, harga_asli: 0, stok: -1, is_promo: 0 });
+    catalogData.push({ game: catalogGames[gi], nama: '', harga: 0, harga_asli: 0, harga_modal: 0, stok: -1, is_promo: 0 });
     renderCatalog();
     const el = document.getElementById(`kat-nama-${catalogData.length - 1}`);
     if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); }
@@ -323,7 +335,7 @@ function catalogAdd(gi) {
 async function saveCatalog() {
     const st = document.getElementById('kat-status');
     const bad = catalogData.find(p => !String(p.nama || '').trim() || !(Number(p.harga) > 0));
-    if (bad) { alert('Setiap produk harus punya nama dan harga lebih dari 0.'); return; }
+    if (bad) { alert('Setiap produk harus punya nama dan harga jual lebih dari 0.'); return; }
     if (!confirm('Simpan perubahan katalog ke website?')) return;
 
     try {
@@ -337,6 +349,7 @@ async function saveCatalog() {
                     nama: String(p.nama).trim(), 
                     harga: Number(p.harga),
                     harga_asli: Number(p.harga_asli) || 0,
+                    harga_modal: Number(p.harga_modal) || 0,
                     stok: p.stok === undefined || p.stok === null ? -1 : Number(p.stok),
                     is_promo: p.is_promo ? 1 : 0
                 }))
@@ -350,22 +363,29 @@ async function saveCatalog() {
     }
 }
 
-// --- 9. FUNGSI LAPORAN KEUANGAN ---
+// --- 9. FUNGSI LAPORAN KEUANGAN (HITUNG MODAL & LABA OTOMATIS) ---
 function renderFinancialReport() {
     const completed = globalOrdersData.filter(o => o.status === 'Selesai' || o.status === 'Sukses');
     let totalSales = 0;
+    let totalCapital = 0;
+    
     let productRecap = {};
     let methodRecap = {};
     let monthlyRecap = {};
 
     completed.forEach(o => {
         const price = Number(o.harga_produk) || 0;
+        const modal = Number(o.modal_produk) || 0; // Mengambil harga modal dari Worker
+        
         totalSales += price;
+        totalCapital += modal;
 
         const pName = o.nama_produk || `Item ${o.item}`;
-        if(!productRecap[pName]) productRecap[pName] = { qty: 0, total: 0 };
+        if(!productRecap[pName]) productRecap[pName] = { qty: 0, total: 0, modal_satuan: modal, harga_satuan: price };
         productRecap[pName].qty += 1;
         productRecap[pName].total += price;
+        productRecap[pName].harga_satuan = price;
+        productRecap[pName].modal_satuan = modal;
 
         const method = o.method ? o.method.toUpperCase() : 'UNKNOWN';
         if(!methodRecap[method]) methodRecap[method] = { qty: 0, total: 0 };
@@ -382,29 +402,44 @@ function renderFinancialReport() {
         monthlyRecap[month].total += price;
     });
 
-    const rp = `Rp ${totalSales.toLocaleString('id-ID')}`;
+    const grossProfit = totalSales - totalCapital;
+    
+    const fmtRp = (num) => `Rp ${num.toLocaleString('id-ID')}`;
     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-    setText('k-jual', rp);
-    setText('k-kotor', rp);
-    setText('k-cut', 'Rp 0');
-    setText('k-bersih', rp);
+    
+    setText('k-jual', fmtRp(totalSales));
+    setText('k-kotor', fmtRp(grossProfit)); // Laba Kotor
+    setText('k-cut', fmtRp(totalCapital));  // Total Pengurang (Modal)
+    setText('k-bersih', fmtRp(grossProfit)); // Laba Bersih sementara
 
+    // Rekap Laba Rugi
     renderReportTable('t-lr', ['Keterangan', 'Total'], [
-        ['Penjualan Bersih', rp],
-        ['Total Pengurang', `Rp 0`],
-        ['Laba Bersih', rp]
+        ['Total Penjualan', fmtRp(totalSales)],
+        ['Total Modal', fmtRp(totalCapital)],
+        ['Laba Kotor', fmtRp(grossProfit)],
+        ['Laba Bersih', fmtRp(grossProfit)]
     ]);
 
     renderReportTable('t-bulan', ['Bulan', 'Transaksi', 'Pendapatan'],
-        Object.keys(monthlyRecap).map(k => [k, monthlyRecap[k].qty, `Rp ${monthlyRecap[k].total.toLocaleString('id-ID')}`])
+        Object.keys(monthlyRecap).map(k => [k, monthlyRecap[k].qty, fmtRp(monthlyRecap[k].total)])
     );
 
-    renderReportTable('t-produk', ['Produk', 'Terjual', 'Pendapatan'],
-        Object.keys(productRecap).map(k => [k, productRecap[k].qty, `Rp ${productRecap[k].total.toLocaleString('id-ID')}`])
+    // Rekap Produk (Modal, Jual, Laba)
+    renderReportTable('t-produk', ['Produk', 'Harga Modal', 'Harga Jual', 'Terjual', 'Laba Kotor'], 
+        Object.keys(productRecap).map(k => {
+            const labaPerItem = productRecap[k].harga_satuan - productRecap[k].modal_satuan;
+            return [
+                k, 
+                fmtRp(productRecap[k].modal_satuan), 
+                fmtRp(productRecap[k].harga_satuan), 
+                productRecap[k].qty, 
+                fmtRp(labaPerItem * productRecap[k].qty)
+            ];
+        })
     );
 
     renderReportTable('t-metode', ['Metode Bayar', 'Transaksi', 'Pendapatan'],
-        Object.keys(methodRecap).map(k => [k, methodRecap[k].qty, `Rp ${methodRecap[k].total.toLocaleString('id-ID')}`])
+        Object.keys(methodRecap).map(k => [k, methodRecap[k].qty, fmtRp(methodRecap[k].total)])
     );
 }
 
@@ -450,7 +485,6 @@ document.querySelectorAll('.nav').forEach(btn => {
         const targetSection = document.getElementById(`sec-${sectionId}`);
         if (targetSection) targetSection.classList.remove('hide');
 
-        // Perbarui angka ringkasan di Kotak Kuning untuk SEMUA halaman
         updateHeroSummary();
 
         if (sectionId === 'db') {
@@ -502,12 +536,10 @@ document.querySelectorAll('.nav').forEach(btn => {
 
 // --- 11. FITUR MOBILE MENU (HAMBURGER) & DARK MODE ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Ambil data awal saat dashboard dimuat untuk mengisi kotak kuning
     if(typeof apiFetch === 'function') {
         loadOrders().catch(e => console.log("Gagal load awal:", e));
     }
 
-    // Tombol simpan metode pembayaran
     const paySave = document.getElementById('pay-save');
     if (paySave) paySave.addEventListener('click', savePayments);
 
@@ -605,7 +637,6 @@ function payEdit(i, field, val) {
     if (st) st.textContent = 'Ada perubahan, tekan Simpan.';
 }
 
-// Ubah gambar QRIS jadi data URL (diperkecil maks 800px supaya ringan)
 function payImage(i, input) {
     const file = input.files && input.files[0];
     if (!file) return;
@@ -650,8 +681,9 @@ async function savePayments() {
         alert('Gagal menyimpan: ' + error.message);
     }
 }
+
 /* ========================================================
-   MODAL BUKTI PEMBAYARAN (Versi <img> - Bebas CORS)
+   MODAL BUKTI PEMBAYARAN
    ======================================================== */
 (function () {
   'use strict';
@@ -666,27 +698,17 @@ async function savePayments() {
     document.body.classList.add('proof-modal-open');
     $('proofModalMeta').textContent = `Order: ${orderId}`;
     
-    // Tampilkan loading
     $('proofModalBody').innerHTML = `
       <div class="proof-loading">
         <div class="proof-spinner"></div>
         <p>Memuat bukti pembayaran…</p>
       </div>`;
 
-    // Susun URL gambar beserta WA agar diizinkan oleh Worker
     let finalUrl = directUrl || '';
     if (finalUrl.startsWith('/')) finalUrl = API_BASE + finalUrl;
-    
-    // Jika directUrl kosong, buat manual
-    if (!finalUrl) {
-        finalUrl = `${API_BASE}/api/proof?orderId=${orderId}`;
-    }
-    // Tambahkan WA jika ada
-    if (wa) {
-        finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'wa=' + encodeURIComponent(wa);
-    }
+    if (!finalUrl) finalUrl = `${API_BASE}/api/proof?orderId=${orderId}`;
+    if (wa) finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'wa=' + encodeURIComponent(wa);
 
-    // Gunakan tag IMG biasa untuk menghindari CORS
     const img = new Image();
     img.className = 'proof-image';
     img.style.cursor = 'zoom-in';
@@ -695,8 +717,6 @@ async function savePayments() {
         $('proofModalBody').appendChild(img);
         $('proofModalMeta').textContent = `Order: ${orderId} • Klik gambar untuk zoom`;
         img.onclick = () => window.open(finalUrl, '_blank');
-        
-        // Atur tombol unduh
         const dl = $('proofDownloadBtn');
         dl.href = finalUrl;
         dl.setAttribute('download', `bukti-${orderId}`);

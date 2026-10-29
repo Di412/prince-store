@@ -1,19 +1,11 @@
-/* dashboard-recap.js
-   Recap per bagian: Beranda, Pesanan Masuk, Pembayaran, Katalog.
-   File tambahan: hanya MEMBACA data yang sudah dimuat dashboard-app.js dan
-   menyisipkan kotak recap sendiri. Logika lama tidak diubah.
-
-   Pasang di dashboard.html, paling bawah setelah dashboard-cf.js (sebelum </body>):
-   <script src="js/dashboard-recap.js"></script>
-*/
+/* dashboard-recap.js */
 (function () {
   'use strict';
 
   var DONE = ['Selesai', 'Sukses'];
-  var rcProducts = [];      // katalog untuk kartu "Produk aktif" di Beranda
+  var rcProducts = [];      
   var productsFetched = false;
 
-  // ---------- helper kecil ----------
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -23,7 +15,11 @@
   var status = function (o) { return String(o.status || '').trim(); };
   var isDone = function (o) { return DONE.indexOf(status(o)) !== -1; };
   var price = function (o) { return Number(o.harga_produk) || 0; };
+  var modal = function (o) { return Number(o.modal_produk) || 0; };
+  
   var sum = function (arr) { return arr.reduce(function (t, o) { return t + price(o); }, 0); };
+  var sumModal = function (arr) { return arr.reduce(function (t, o) { return t + modal(o); }, 0); };
+  
   var pad = function (n) { return (n < 10 ? '0' : '') + n; };
   var key = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
   var dmy = function (k) { var p = k.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
@@ -38,7 +34,6 @@
   }
   function validProduct(p) { return String(p.nama || '').trim() !== '' && Number(p.harga) > 0; }
 
-  // ---------- filter tanggal (kolom Dari / Sampai di atas) ----------
   function range() {
     var f = $('from'), t = $('to');
     return { from: f ? f.value : '', to: t ? t.value : '' };
@@ -58,7 +53,6 @@
     return r.from ? 'Periode: mulai ' + dmy(r.from) : 'Periode: sampai ' + dmy(r.to);
   }
 
-  // ---------- pembangun HTML ----------
   var H2 = '<h2 style="font-size:.95rem;margin:16px 0 8px">';
   function table(head, rows, empty) {
     if (!rows.length) return '<p class="note">' + empty + '</p>';
@@ -80,7 +74,6 @@
   }
   var bold = function (s) { return '<b>' + s + '</b>'; };
 
-  // ---------- sisipkan kotak recap ke halaman ----------
   function inject(id, anchorSel, pos) {
     if ($(id)) return;
     var a = document.querySelector(anchorSel);
@@ -90,7 +83,6 @@
     a.insertAdjacentElement(pos, d);
   }
 
-  // ---------- 1. BERANDA ----------
   function renderHome() {
     var all = orders();
     var set = function (id, v) { var el = $(id); if (el) el.textContent = v; };
@@ -100,7 +92,6 @@
 
     var box = $('rc-home'); if (!box) return;
 
-    // pendapatan hari ini / 7 hari / bulan ini (tidak terpengaruh filter tanggal)
     var now = new Date(), todayK = key(now);
     var k7 = key(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6));
     var monthK = todayK.slice(0, 7);
@@ -110,29 +101,32 @@
         var d = new Date(o.created_at);
         return !isNaN(d.getTime()) && pred(key(d));
       });
-      return { n: m.length, rev: sum(m) };
+      return { n: m.length, rev: sum(m), profit: sum(m) - sumModal(m) };
     }
     var w1 = win(function (k) { return k === todayK; });
     var w7 = win(function (k) { return k >= k7 && k <= todayK; });
     var wm = win(function (k) { return k.slice(0, 7) === monthK; });
-    var sub = function (w) { return w.n + ' pesanan selesai'; };
+    var sub = function (w) { return w.n + ' pesanan (Laba: ' + rp(w.profit) + ')'; };
 
-    // per game, mengikuti filter tanggal
     var data = filtered(), g = {};
     data.forEach(function (o) {
       var k = String(o.game || 'lainnya').toLowerCase();
-      var x = g[k] = g[k] || { n: 0, done: 0, rev: 0 };
+      var x = g[k] = g[k] || { n: 0, done: 0, rev: 0, profit: 0 };
       x.n++;
-      if (isDone(o)) { x.done++; x.rev += price(o); }
+      if (isDone(o)) { 
+          x.done++; 
+          x.rev += price(o); 
+          x.profit += price(o) - modal(o);
+      }
     });
     var keys = Object.keys(g).sort(function (a, b) { return g[b].rev - g[a].rev; });
     var rows = keys.map(function (k) {
-      return [esc(gameLabel(k)), g[k].n, g[k].done, rp(g[k].rev)];
+      return [esc(gameLabel(k)), g[k].n, g[k].done, rp(g[k].rev), rp(g[k].profit)];
     });
     if (rows.length) {
-      var tn = 0, td = 0, tr = 0;
-      keys.forEach(function (k) { tn += g[k].n; td += g[k].done; tr += g[k].rev; });
-      rows.push([bold('Total'), bold(tn), bold(td), bold(rp(tr))]);
+      var tn = 0, td = 0, tr = 0, tp = 0;
+      keys.forEach(function (k) { tn += g[k].n; td += g[k].done; tr += g[k].rev; tp += g[k].profit; });
+      rows.push([bold('Total'), bold(tn), bold(td), bold(rp(tr)), bold(rp(tp))]);
     }
 
     box.innerHTML =
@@ -144,10 +138,9 @@
         stat('Bulan ini', rp(wm.rev), sub(wm)) +
       '</div>' +
       H2 + 'Per game <span class="note" style="font-weight:400">(' + esc(periodText()) + ')</span></h2>' +
-      table(['Game', 'Pesanan', 'Selesai', 'Pendapatan'], rows, 'Belum ada pesanan pada periode ini.');
+      table(['Game', 'Pesanan', 'Selesai', 'Pendapatan', 'Laba Kotor'], rows, 'Belum ada pesanan pada periode ini.');
   }
 
-  // ---------- 2. PESANAN MASUK ----------
   function renderOrd() {
     var box = $('rc-ord'); if (!box) return;
     var data = filtered();
@@ -164,7 +157,6 @@
     if (other.length) rows.push(['Lainnya', other.length, rp(sum(other))]);
     rows.push([bold('Total'), bold(data.length), bold(rp(sum(data)))]);
 
-    // pesanan yang masih berjalan, per game
     var g = {};
     data.forEach(function (o) {
       var s = status(o);
@@ -183,7 +175,6 @@
       table(['Game', 'Perlu diproses', 'Menunggu bayar'], grows, 'Tidak ada pesanan yang sedang berjalan.');
   }
 
-  // ---------- 3. PEMBAYARAN ----------
   function renderPay() {
     var box = $('rc-pay'); if (!box) return;
     var pd = (typeof payData !== 'undefined' && Array.isArray(payData)) ? payData : [];
@@ -216,7 +207,6 @@
       table(['Metode', 'Di website', 'Pesanan', 'Menunggu bayar', 'Selesai', 'Pendapatan'], rows, 'Belum ada data pembayaran.');
   }
 
-  // ---------- 4. KATALOG ----------
   function renderKat() {
     var box = $('rc-kat'); if (!box) return;
     var list = (typeof catalogData !== 'undefined' && Array.isArray(catalogData)) ? catalogData : [];
@@ -248,7 +238,6 @@
       table(['Game', 'Produk', 'Termurah', 'Termahal', 'Rata-rata', 'Belum lengkap'], rows, '');
   }
 
-  // ---------- jalankan semua ----------
   function safe(fn) { try { fn(); } catch (e) { if (window.console) console.warn('recap:', e); } }
   function renderAll() { safe(renderHome); safe(renderOrd); safe(renderPay); safe(renderKat); }
 
@@ -265,7 +254,6 @@
     }).catch(function () { productsFetched = false; });
   }
 
-  // bungkus fungsi lama supaya recap ikut diperbarui setelah data berubah
   function wrap(name, after) {
     var orig = window[name];
     if (typeof orig !== 'function') return;

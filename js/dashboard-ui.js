@@ -3,11 +3,6 @@
    - grafik pendapatan + pilihan periode di kotak Laba Bersih
    - tombol aksi cepat dan daftar "Pesanan terbaru" di Beranda
    - tab menu bawah di HP, dan foto profil di header
-   File ini hanya MEMBACA data yang sudah dimuat dan menekan tombol menu yang
-   sudah ada. Logika lama tidak diubah.
-
-   Pasang di dashboard.html, paling bawah setelah dashboard-recap.js:
-   <script src="js/dashboard-ui.js"></script>
 */
 (function () {
   'use strict';
@@ -53,10 +48,48 @@
     menu: icon('<path d="M4 7h16M4 12h16M4 17h10"/>')
   };
 
-  // ---------- 1. foto profil di header ----------
+  // ---------- 1. foto profil di header & logo sidebar ----------
   function buildAvatar() {
     var t = $('theme-toggle');
     if (!t || document.querySelector('.hdr-right')) return;
+    
+    // Tambahkan CSS untuk menyesuaikan logo di Header & Sidebar
+    if (!document.getElementById('avatar-styles')) {
+      var style = document.createElement('style');
+      style.id = 'avatar-styles';
+      style.innerHTML = `
+        .avatar, .brand img { transition: all 0.3s ease; }
+        
+        /* --- MODE GELAP (DEFAULT) --- */
+        .brand span {
+          color: #000000 !important; /* Tulisan Official Finance menjadi Hitam */
+        }
+
+        /* --- MODE TERANG (LIGHT MODE) --- */
+        /* Saat mode terang, beri background gelap dan border pada logo Header */
+        body.light-mode .avatar {
+          background-color: #0f172a !important;
+          border: 2px solid #334155 !important;
+          padding: 2px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Saat mode terang, beri background gelap dan border pada logo Sidebar */
+        body.light-mode .brand img {
+          background-color: #0f172a !important;
+          border: 2px solid #334155 !important;
+          padding: 2px;
+          border-radius: 8px;
+        }
+        
+        /* Tulisan Official Finance di mode terang menjadi Kuning Gelap */
+        body.light-mode .brand span {
+          color: #ca8a04 !important; 
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     var right = document.createElement('div');
     right.className = 'hdr-right';
     t.parentNode.insertBefore(right, t);
@@ -69,13 +102,33 @@
     right.appendChild(img);
   }
 
-  // ---------- 1b. sapaan "Welcome, Bos Prince" menggantikan judul Beranda ----------
+  // ---------- 1b. sapaan "Welcome, Bos Prince" ----------
   function buildGreeting() {
     var t = $('ptitle');
     if (!t || document.querySelector('.greet')) return;
     var g = document.createElement('div');
     g.className = 'greet';
-    g.innerHTML = '<small>Welcome,</small><b>Bos Prince</b>';
+    
+    g.innerHTML = '<small class="txt-welcome">Welcome,</small><b class="txt-name">Bos Prince</b>';
+    
+    if (!document.getElementById('greet-styles')) {
+      var style = document.createElement('style');
+      style.id = 'greet-styles';
+      style.innerHTML = `
+        /* --- MODE GELAP (DEFAULT) --- */
+        .txt-welcome { color: #facc15 !important; } /* Kuning Terang */
+        .txt-name { color: #ffffff !important; }    /* Putih */
+
+        /* --- MODE TERANG (LIGHT MODE) --- */
+        body.light-mode .txt-welcome { color: #000000 !important; } /* Hitam */
+        body.light-mode .txt-name { 
+          color: #facc15 !important; /* Kuning Terang */
+          text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; 
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     t.parentNode.insertBefore(g, t);
     var sync = function () { document.body.classList.toggle('is-home', t.textContent.trim() === 'Beranda'); };
     sync();
@@ -190,7 +243,6 @@
       for (i = n; i < 2 * n; i++) prev += m[key(daysAgo(today, i))] || 0;
     }
 
-    // gambar kurva
     var W = 300, H = 84, top = 8, bot = 6;
     var max = Math.max.apply(null, vals.concat([1]));
     var pts = vals.map(function (v, idx) {
@@ -205,7 +257,6 @@
     dot.style.left = (last[0] / W * 100) + '%';
     dot.style.top = (last[1] / H * 100) + '%';
 
-    // teks perubahan
     var el = $('ui-delta'), label = range === 'all' ? 'semua waktu' : n + ' hari';
     var cls = 'spark-delta', html;
     if (total === 0 && prev === 0) {
@@ -241,7 +292,14 @@
       ].map(function (a) {
         return '<button type="button" class="qa-i" data-go="' + a[0] + '">' + a[1] + '<span>' + a[2] + '</span></button>';
       }).join('');
-      sec.insertBefore(qa, sec.firstChild);
+      
+      var heroBox = sec.querySelector('.hero');
+      if (heroBox) {
+        heroBox.insertAdjacentElement('afterend', qa);
+      } else {
+        sec.insertBefore(qa, sec.firstChild);
+      }
+
       qa.addEventListener('click', function (e) {
         var b = e.target.closest('[data-go]');
         if (b) go(b.getAttribute('data-go'));

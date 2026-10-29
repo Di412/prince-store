@@ -6,6 +6,14 @@ function processOrder() {
         return;
     }
 
+    // Validasi Nama
+    const nama = document.getElementById('inputNama').value.trim();
+    if (!nama) {
+        alert('Mohon isi Nama Anda!');
+        document.getElementById('inputNama').focus();
+        return;
+    }
+
     const data = gameData[selectedGameKey];
     let accountValid = true;
 
@@ -41,6 +49,7 @@ function processOrder() {
 
     // Fill Confirm Modal Data
     document.getElementById('modalConfirmGame').innerText = gameData[selectedGameKey].name;
+    document.getElementById('modalConfirmNama').innerText = nama;
     document.getElementById('modalConfirmAccount').innerText = document.getElementById('summaryAccount').innerText;
     document.getElementById('modalConfirmItem').innerText = selectedItem.name;
     document.getElementById('modalConfirmPayment').innerText = selectedPayment.name;
@@ -188,12 +197,14 @@ async function submitFinalOrder() {
             const accountStr = document.getElementById('summaryAccount').innerText;
             const totalStr = document.getElementById('summaryTotal').innerText;
             const waNum = "0" + document.getElementById('inputWhatsapp').value.trim();
+            const namaPembeli = document.getElementById('inputNama').value.trim();
 
             const orderData = {
                 game: selectedGameKey, // Kirim persis 'mlbb', 'ff', atau 'roblox'
                 target: accountStr,
                 produk_id: selectedItem.id,
                 metode_id: selectedPayment.id,
+                nama: namaPembeli,
                 wa: waNum
             };
 
@@ -209,6 +220,7 @@ async function submitFinalOrder() {
             const transaction = {
                 id: finalId, // Pakai ID dari Cloudflare
                 game: gameData[selectedGameKey].name,
+                nama: namaPembeli,
                 target: accountStr,
                 item: selectedItem.name,
                 method: selectedPayment.name,
