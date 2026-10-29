@@ -43,6 +43,10 @@ function selectGame(gameKey) {
     updateSummary();
 }
 
+const DIAMOND_ICON = 'Diamond.png';
+const WEEKLY_PASS_ICON = 'WDP.png';
+const DIAMOND_GAMES = ['mlbb', 'ff'];
+
 function renderNominalItems(gameKey) {
     const data = gameData[gameKey];
     const nominalGrid = document.getElementById('nominalGrid');
@@ -52,7 +56,7 @@ function renderNominalItems(gameKey) {
         const card = document.createElement('div');
         const soldOut = item.stok === 0;
         
-        card.className = `border border-cardBorder rounded-xl p-4 bg-slate-900/60 transition-all duration-200 relative item-card ${soldOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-neonCyan hover:bg-slate-900'}`;
+        card.className = `flex items-center gap-2 sm:gap-3 border border-yellow-400 rounded-xl p-3 sm:p-4 bg-slate-900/60 transition-all duration-200 relative item-card ${soldOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-yellow-300 hover:bg-slate-900'}`;
         card.dataset.itemId = item.id;
         
         if (!soldOut) {
@@ -63,15 +67,17 @@ function renderNominalItems(gameKey) {
         const badgeText = soldOut ? 'Stok Habis' : (item.is_promo ? 'PROMO' : item.badge);
         if (badgeText) {
             const badge = document.createElement('span');
-            badge.className = soldOut 
-                ? 'absolute top-2 right-2 text-[9px] font-black bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-0.5 rounded-full'
-                : 'absolute top-2 right-2 text-[9px] font-black bg-neonCyan/20 text-neonCyan border border-neonCyan/30 px-2 py-0.5 rounded-full';
+            badge.className = soldOut
+                ? 'absolute top-2 right-2 text-[9px] font-black bg-red-500/20 text-red-500 border border-red-500/40 px-2 py-0.5 rounded-full'
+                : (item.is_promo
+                    ? 'absolute top-2 right-2 text-[9px] font-black bg-yellow-400 text-black border border-yellow-300 px-2 py-0.5 rounded-full'
+                    : 'absolute top-2 right-2 text-[9px] font-black bg-neonCyan/20 text-neonCyan border border-neonCyan/30 px-2 py-0.5 rounded-full');
             badge.textContent = badgeText;
             card.appendChild(badge);
         }
         
         const name = document.createElement('div');
-        name.className = 'text-sm font-bold text-white mb-1 pr-8';
+        name.className = 'text-sm font-bold text-white mb-1 pr-6';
         name.textContent = item.name;
         
         const priceContainer = document.createElement('div');
@@ -82,7 +88,14 @@ function renderNominalItems(gameKey) {
             const oldPrice = document.createElement('span');
             oldPrice.className = 'text-[10px] line-through text-slate-500';
             oldPrice.textContent = `Rp ${Number(item.harga_asli).toLocaleString('id-ID')}`;
-            priceContainer.appendChild(oldPrice);
+            const discount = Math.round((Number(item.harga_asli) - Number(item.price)) / Number(item.harga_asli) * 100);
+            const discountLabel = document.createElement('span');
+            discountLabel.className = 'text-[9px] font-black bg-yellow-400/15 text-yellow-400 border border-yellow-400/40 px-1.5 py-0.5 rounded';
+            discountLabel.textContent = `HEMAT ${discount}%`;
+            const oldRow = document.createElement('div');
+            oldRow.className = 'flex items-center gap-1.5 flex-wrap';
+            oldRow.append(oldPrice, discountLabel);
+            priceContainer.appendChild(oldRow);
         }
         
         const price = document.createElement('div');
@@ -90,7 +103,25 @@ function renderNominalItems(gameKey) {
         price.textContent = `Rp ${Number(item.price).toLocaleString('id-ID')}`;
         
         priceContainer.appendChild(price);
-        card.append(name, priceContainer);
+        // Teks di kanan, ikon di kiri (ikon hanya untuk ML & FF)
+        const textCol = document.createElement('div');
+        textCol.className = 'min-w-0 flex-1';
+        textCol.append(name, priceContainer);
+
+        if (DIAMOND_GAMES.includes(gameKey)) {
+            // Weekly Diamond Pass (ML) memakai ikon sendiri
+            const isWeekly = gameKey === 'mlbb' && /weekly/i.test(item.name);
+            const iconBox = document.createElement('div');
+            iconBox.className = 'w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center pointer-events-none';
+            const diamond = document.createElement('img');
+            diamond.src = isWeekly ? WEEKLY_PASS_ICON : DIAMOND_ICON;
+            diamond.alt = '';
+            diamond.className = 'w-full h-full object-contain';
+            iconBox.appendChild(diamond);
+            card.append(iconBox, textCol);
+        } else {
+            card.append(textCol);
+        }
         nominalGrid.appendChild(card);
     });
 
@@ -100,7 +131,7 @@ function renderNominalItems(gameKey) {
         if (selectedItem) {
             const selectedCard = Array.from(nominalGrid.children)
                 .find(card => card.dataset.itemId === selectedItem.id);
-            if (selectedCard) selectedCard.classList.add('border-neonCyan', 'bg-neonCyan/10');
+            if (selectedCard) selectedCard.classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-400/10');
         }
     }
 }
@@ -147,8 +178,8 @@ function renderPayments() {
 
 function selectNominal(item, element) {
     selectedItem = item;
-    document.querySelectorAll('.item-card').forEach(el => el.classList.remove('border-neonCyan', 'bg-neonCyan/10'));
-    element.classList.add('border-neonCyan', 'bg-neonCyan/10');
+    document.querySelectorAll('.item-card').forEach(el => el.classList.remove('ring-2', 'ring-yellow-400', 'bg-yellow-400/10'));
+    element.classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-400/10');
     updateSummary();
 }
 
