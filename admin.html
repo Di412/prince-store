@@ -15,12 +15,29 @@
   var SKALA = 0.85;
   try {
     var kecil = Math.min(screen.width, screen.height) <= 600;
-    if (/Android/i.test(navigator.userAgent) && kecil && SKALA !== 1) {
-      document.documentElement.style.zoom = SKALA;
+    if (/Android/i.test(navigator.userAgent) && kecil) {
+      document.documentElement.classList.add('hp-android');
+      if (SKALA !== 1) document.documentElement.style.zoom = SKALA;
     }
   } catch (_) {}
 })();
 </script>
+<style>
+/* Ukuran lebih ringkas khusus HP Android (angka px di bawah ini sebelum dikalikan SKALA di atas) */
+html.hp-android #ptitle { font-size: 22px !important; }
+html.hp-android .hero { padding: 16px !important; }
+html.hp-android .hero .hv { font-size: 24px !important; margin: 2px 0 8px !important; }
+html.hp-android .hero .hp div { padding: 10px !important; }
+html.hp-android .hero .hp b { font-size: 14px !important; }
+html.hp-android .card { padding: 12px 14px !important; }
+html.hp-android .card .l { font-size: 11px !important; margin-bottom: 4px !important; }
+html.hp-android .card .v { font-size: 22px !important; }
+html.hp-android .panel { padding: 14px !important; }
+html.hp-android .panel h2 { font-size: 15px !important; margin-bottom: 10px !important; }
+html.hp-android .order-card { padding: 14px !important; }
+html.hp-android input, html.hp-android select { padding: 9px 12px !important; font-size: 14px !important; }
+html.hp-android .nav { padding: 10px 12px !important; font-size: 13px !important; }
+</style>
 
 <!-- ===== PWA: pengaturan aplikasi ===== -->
 <link rel="manifest" href="manifest-admin.webmanifest">
