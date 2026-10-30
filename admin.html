@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Dashboard Keuangan</title>
+
+<!-- ===== PWA: pengaturan aplikasi ===== -->
+<link rel="manifest" href="manifest-admin.webmanifest">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prince Admin">
+<link rel="apple-touch-icon" href="logo-profil.png">
+<link rel="icon" type="image/png" href="logo-profil.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="css/dashboard-ui.css">
+<style>
+  /* ==========================================
+     CSS KATALOG (PROMO & MOBILE/DESKTOP)
+     ========================================== */
+  
+  /* Style dasar label promo */
+  .promo-label {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 5px; 
+    font-size: 14px; 
+    cursor: pointer; 
+    height: 100%; 
+    box-sizing: border-box;
+  }
+
+  /* Tampilan Katalog di HP (Mobile) */
+  @media (max-width: 768px) {
+    .kat-grid-header { display: none !important; }
+    .mobile-label { display: block !important; }
+
+    .kat-grid-row { 
+      display: flex !important; 
+      flex-direction: column !important; 
+      gap: 8px !important; 
+      padding: 12px; 
+      border: 1px solid var(--line); 
+      border-radius: 8px; 
+      margin-bottom: 12px; 
+      background: var(--card); 
+    }
+    
+    .kat-mobile-row { 
+      display: grid !important; 
+      grid-template-columns: 1fr 1fr !important; 
+      gap: 8px !important; 
+    }
+    
+    .kat-grid-row input {
+      background: var(--bg) !important; 
+    }
+
+    /* Kotak Promo di HP */
+    .promo-label {
+      background: var(--card); 
+      border: 1px solid var(--line); 
+      border-radius: 8px; 
+      padding: 10px;
+    }
+  }
+
+  /* Tampilan Desktop (Laptop) */
+  @media (min-width: 769px) {
+    .kat-mobile-row { display: contents !important; }
+    
+    .kat-grid-header, .kat-grid-row {
+      display: grid !important;
+      /* Perlebar kolom promo jadi 80px agar tidak sesak */
+      grid-template-columns: 1fr 90px 90px 90px 60px 80px !important; 
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .kat-grid-header {
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    
+    .kat-grid-row {
+      margin-bottom: 8px;
+    }
+
+    /* Menghapus kotak border di laptop agar terlihat rapi */
+    .promo-label {
+      justify-content: flex-start; /* Rata kiri */
+      padding: 0; 
+      background: transparent;
+      border: none;
+    }
+  }
+
+  /* ==========================================
+     CSS MODAL BUKTI PEMBAYARAN
+     ========================================== */
+  #proofModal[hidden]{display:none!important}
+  #proofModal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center}
+  .proof-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px)}
+  .proof-dialog{position:relative;z-index:1;background:#0f172a;color:#e2e8f0;border:1px solid #334155;
+    border-radius:16px;width:min(94vw,860px);max-height:92vh;display:flex;flex-direction:column;
+    box-shadow:0 25px 60px rgba(0,0,0,.6);overflow:hidden}
+  .proof-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #334155}
+  .proof-head h3{margin:0;font-size:1rem;font-weight:800;color:#fff}
+  #proofModalMeta{margin:2px 0 0;font-size:.75rem;color:#94a3b8}
+  .proof-actions{display:flex;gap:8px}
+  .proof-btn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;
+    padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px}
+  .proof-btn:hover{background:#334155;color:#fff}
+  .proof-body{flex:1;overflow:auto;padding:18px;display:flex;align-items:center;justify-content:center;
+    min-height:240px;background:#020617}
+  .proof-image{width:100%;max-width:800px;height:auto;border-radius:8px;display:block;margin:0 auto;}
+  .proof-image.zoom{transform:scale(1.9);cursor:zoom-out}
+  .proof-pdf{width:100%;height:70vh;border:0;border-radius:8px;background:#fff}
+  .proof-loading{text-align:center;color:#94a3b8}
+  .proof-spinner{width:38px;height:38px;border:4px solid #334155;border-top-color:#22d3ee;
+    border-radius:50%;margin:0 auto 12px;animation:proofspin 1s linear infinite}
+  @keyframes proofspin{to{transform:rotate(360deg)}}
+  .proof-error{text-align:center;color:#fca5a5;max-width:420px}
+  .proof-error__icon{font-size:2rem;margin-bottom:8px}
+  .proof-error__msg{font-weight:700;color:#fecaca}
+  .proof-error__hint{font-size:.8rem;color:#94a3b8;margin-top:6px}
+  body.proof-modal-open{overflow:hidden}
+
+  /* ==========================================
+     PWA: ruang aman layar (notch / status bar)
+     ========================================== */
+  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+  /* Banner tombol "Pasang Aplikasi" */
+  #installBar[hidden]{display:none!important}
+  #installBar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9000;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:12px;
+    padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:.85rem}
+  #installBar b{color:#FFD700}
+  #installBar button{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  #installBtn{background:#FFD700;color:#0f172a}
+  #installClose{background:transparent;color:#94a3b8}
+  #offlineBadge[hidden]{display:none!important}
+  #offlineBadge{position:fixed;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+    z-index:9001;background:#b91c1c;color:#fff;padding:6px 14px;border-radius:99px;font-size:.75rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- LOGIN ADMIN -->
+<div id="authOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;display:none;justify-content:center;align-items:center;z-index:9999;">
+  <div style="background:white;padding:30px;border-radius:12px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3);width:300px;">
+    <h3 style="margin-bottom:15px;color:#1e293b;">Dashboard Keuangan</h3>
+        <input type="password" id="pinInput" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPin()" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;text-align:center;font-size:16px;">
+    <p id="authErr" role="alert" style="color:red;font-size:12px;height:15px;"></p>
+    <button type="button" onclick="checkPin()" style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Buka Dashboard</button>  
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side" id="side" aria-label="Menu utama">
+    <div class="brand"><img src="logo-profil.png" alt="Prince Store"><span>Official Finance</span></div>
+    <nav>
+      <div class="grp">Utama</div>
+      <button class="nav on" data-v="beranda" data-s="Beranda">Beranda</button>
+      <div class="grp">Operasional</div>
+      <button class="nav" data-v="pesanan" data-s="Pesanan">Pesanan Masuk <span id="ord-badge" class="badge hide">0</span></button>
+      <button class="nav" data-v="pembayaran" data-s="Pembayaran">Pembayaran</button>
+      <div class="grp">Dashboard</div>
+      <button class="nav" data-v="transaksi" data-s="Transaksi">Riwayat Transaksi</button>
+      <button class="nav" data-v="biaya" data-s="Biaya">Data Biaya</button>
+      <button class="nav" data-v="refund" data-s="Refund">Refund Order</button>
+      <div class="grp">Laporan</div>
+      <button class="nav" data-v="laporan" data-s="Laporan">Laporan keuangan</button>
+      <div class="grp">Produk</div>
+      <button class="nav" data-v="katalog" data-s="Katalog">Katalog produk</button>
+      <div class="grp">Keamanan</div>
+      <button class="nav" data-v="blokir" data-s="Blokir">Daftar blokir</button>
+      
+      <!-- TOMBOL KELUAR -->
+      <button type="button" class="nav" onclick="logoutAdmin()" style="background-color: #ebe2e2; color: #e81616; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 20px; width: 85%;">
+        Logout
+      </button>
+    </nav>
+  </aside>
+  
+  <div class="scrim" id="scrim"></div>
+  
+  <!-- KONTEN UTAMA -->
+  <main class="main">
+    
+    <!-- HEADER -->
+    <header class="top" style="display: flex; flex-direction: column; gap: 15px; border-bottom: none; padding-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <button id="menu" aria-label="Buka menu" style="display:none; background: var(--card); color: var(--text); border: 1px solid var(--line); padding: 8px 12px; border-radius: 8px; font-size: 20px; cursor: pointer;">&#9776;</button>
+          <h1 id="ptitle" style="margin: 0; font-size: 28px; font-weight: 900;">Beranda</h1>
+        </div>
+        <button id="theme-toggle" class="ghost" style="font-size:0.8rem; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer;">🌙 Mode</button>
+      </div>
+    </header>
+
+    <div class="sub" id="updated" style="margin-bottom: 20px;">Memuat data…</div>
+    
+    <div class="row" id="filters">
+      <input type="date" id="from" aria-label="Dari tanggal">
+      <input type="date" id="to" aria-label="Sampai tanggal">
+      <button id="reset">Reset</button>
+    </div>
+
+    <!-- SECTION: BERANDA -->
+    <section id="sec-home">
+      
+      <!-- KOTAK KUNING LABA BERSIH & GRAFIK (Khusus Beranda) -->
+      <div class="hero" style="width: 100%; margin-bottom: 20px;">
+        <div class="hl">Laba Bersih</div>
+        <div class="hv" id="h-bersih">Rp 0</div>
+        <div class="hp">
+          <div><small>Penjualan</small><b id="h-jual">-</b></div>
+          <div><small>Modal</small><b id="h-cut">-</b></div>
+        </div>
+
+        <div class="hp" style="margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">
+          <div><small>Total Masuk</small><b id="st-total">0</b></div>
+          <div><small>Perlu Diproses</small><b id="st-proses">0</b></div>
+          <div><small>Menunggu Bayar</small><b id="st-bayar">0</b></div>
+          <div><small>Selesai</small><b id="st-selesai">0</b></div>
+        </div>
+      </div>
+      <!-- (Tombol aksi cepat disisipkan otomatis oleh JS di bawah sini) -->
+
+      <div class="cards">
+        <div class="card"><div class="l">Perlu diproses</div><div class="v" id="home-waiting">0</div></div>
+        <div class="card"><div class="l">Ditandai (cek dulu)</div><div class="v" id="home-flag">0</div></div>
+        <div class="card"><div class="l">Bukti pembayaran</div><div class="v" id="home-proofs">0</div></div>
+        <div class="card"><div class="l">Pesanan selesai</div><div class="v" id="home-done">0</div></div>
+        <div class="card"><div class="l">Produk aktif</div><div class="v" id="home-products">0</div></div>
+      </div>
+      
+    </section>
+
+    <!-- SECTION: PESANAN -->
+    <section id="sec-ord" class="hide">
+      <div class="row" style="margin-bottom: 15px;">
+        <input type="text" id="searchOrder" oninput="filterOrders()" placeholder="Cari ID Pesanan, Game, Target, atau No. WA..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text);">
+      </div>
+      <div class="row" style="margin-bottom:10px">
+        <button id="ord-notif" class="pri">🔔 Aktifkan notifikasi &amp; suara</button>
+        <span class="note" id="ord-info" style="margin:0 0 0 8px"></span>
+      </div>
+      <h2 style="font-size:.95rem">Ditandai: cek dulu sebelum diproses</h2><div id="ord-flag"></div>
+      <h2 style="font-size:.95rem;margin-top:18px">Perlu diproses</h2><div id="ord-new"></div>
+      <h2 style="font-size:.95rem;margin-top:18px">Menunggu pembayaran</h2><div id="ord-wait"></div>
+      <h2 style="font-size:.95rem;margin-top:18px">Selesai (terbaru)</h2><div id="ord-done"></div>
+    </section>
+
+    <!-- SECTION: PEMBAYARAN -->
+    <section id="sec-pay" class="hide">
+      <div class="panel">
+        <h2>Metode pembayaran toko</h2>
+        <p class="note">Website menampilkan 5 metode: QRIS, Dana, Gopay, Mandiri, dan Tunai. Atur biaya, tujuan pembayaran, dan gambar QRIS di sini, lalu tekan Simpan.</p>
+        <div id="pay-list"></div>
+        <div class="row" style="margin-top:14px"><button id="pay-save" class="pri">Simpan perubahan ke website</button><span id="pay-status" class="note"></span></div>
+      </div>
+    </section>
+
+    <!-- SECTION: DATABASE (Transaksi, Biaya, Refund) -->
+    <section id="sec-db" class="hide">
+      <div class="row">
+        <select id="dbsel">
+          <option value="transaksi">Riwayat Transaksi</option>
+          <option value="biaya">Data Biaya</option>
+          <option value="refund">Refund Order</option>
+        </select>
+        <input type="search" id="q" placeholder="Cari order, produk, kategori" style="flex:1;min-width:140px">
+      </div>
+      <div class="row">
+        <button class="pri" id="db-xlsx">Unduh Excel (semua tab)</button>
+        <button class="pri" id="db-pdf">Unduh PDF (tabel ini)</button>
+      </div>
+
+      <!-- Biaya -->
+      <div id="bi-box" class="hide">
+        <div class="panel">
+          <h2>Tambah biaya</h2>
+          <div class="grid">
+            <div class="f"><label for="bi-tgl">Tanggal</label><input type="date" id="bi-tgl"></div>
+            <div class="f"><label for="bi-kat-in">Kategori</label><input id="bi-kat-in" list="bi-kat" placeholder="Pilih atau ketik" maxlength="60"></div>
+            <div class="f" style="grid-column:1 / -1"><label for="bi-ket">Keterangan</label><input id="bi-ket" placeholder="mis. Iklan Instagram" maxlength="200"></div>
+            <div class="f"><label for="bi-jml">Jumlah (Rp)</label><input type="number" id="bi-jml" min="0" step="1000" inputmode="numeric" placeholder="0"></div>
+            <div class="f" style="align-self:end"><button class="pri" id="bi-add-btn" style="width:100%">Tambah biaya</button></div>
+          </div>
+          <div class="err" id="bi-err"></div>
+          <datalist id="bi-kat"></datalist>
+        </div>
+        <div class="row" style="margin-bottom:6px"><div class="sum" id="bi-sum" style="margin:0"></div><span id="bi-status" role="status" style="margin-left:auto;color:var(--muted);font-size:.8rem"></span></div>
+        <div id="bi-list"></div>
+        <div class="note" id="bi-msg"></div>
+      </div>
+
+      <!-- Refund -->
+      <div id="rf-box" class="hide">
+        <div class="panel">
+          <h2>Catat refund order</h2>
+          <div class="grid">
+            <div class="f" style="grid-column:1 / -1"><label for="rf-order">Order ID</label><input id="rf-order" list="rf-ord" placeholder="mis. Customer-0001PS" maxlength="60" autocomplete="off"></div>
+            <div class="f" style="grid-column:1 / -1"><div class="note" id="rf-info" style="margin:0"></div></div>
+            <div class="f"><label for="rf-tgl">Tanggal</label><input type="date" id="rf-tgl"></div>
+            <div class="f"><label for="rf-jml">Jumlah refund (Rp)</label><input type="number" id="rf-jml" min="0" step="500" inputmode="numeric" placeholder="0"></div>
+            <div class="f" style="grid-column:1 / -1"><label for="rf-alasan">Alasan</label><input id="rf-alasan" list="rf-als" placeholder="Pilih atau ketik" maxlength="200"></div>
+            <div class="f" style="grid-column:1 / -1"><button class="pri" id="rf-add-btn" style="width:100%">Catat refund</button></div>
+          </div>
+          <div class="err" id="rf-err"></div>
+          <datalist id="rf-ord"></datalist><datalist id="rf-als"></datalist>
+        </div>
+        <div class="row" style="margin-bottom:6px"><div class="sum" id="rf-sum" style="margin:0"></div><span id="rf-status" role="status" style="margin-left:auto;color:var(--muted);font-size:.8rem"></span></div>
+        <div id="rf-list"></div>
+        <div class="note" id="rf-msg"></div>
+      </div>
+
+      <!-- Tabel Riwayat Transaksi -->
+      <div class="panel" id="dbpanel"><div class="scroll" id="dbtable"></div><div id="dbmsg"></div></div>
+    </section>
+
+    <!-- SECTION: LAPORAN -->
+    <section id="sec-rep" class="hide">
+      <div class="row">
+        <button class="pri" id="rep-xlsx">Unduh Excel</button>
+        <button class="pri" id="rep-pdf">Unduh PDF</button>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="l">Penjualan</div><div class="v" id="k-jual">-</div></div>
+        <div class="card"><div class="l">Laba kotor</div><div class="v" id="k-kotor">-</div></div>
+        <div class="card"><div class="l">Modal</div><div class="v" id="k-cut">-</div></div>
+        <div class="card"><div class="l">Laba bersih</div><div class="v good" id="k-bersih">-</div></div>
+      </div>
+      <div class="panel"><h2>Laba rugi</h2><div class="scroll" id="t-lr"></div></div>
+      <div class="panel"><h2>Rekap per bulan</h2><div class="scroll" id="t-bulan"></div></div>
+      <div class="panel"><h2>Rekap per produk</h2><div class="scroll" id="t-produk"></div></div>
+      <div class="panel"><h2>Rekap per metode bayar</h2><div class="scroll" id="t-metode"></div></div>
+      <div class="note">Hanya transaksi berstatus paid yang dihitung. Refund dianggap mengurangi laba sebesar jumlahnya.</div>
+    </section>
+
+    <!-- SECTION: KATALOG -->
+    <section id="sec-kat" class="hide">
+      <div class="row tabs" id="kat-tabs"></div>
+      <div class="row">
+        <button id="kat-xl">Unduh Excel katalog</button>
+        <button id="kat-publish" class="pri">Aktifkan harga game ini di website</button>
+        <span id="kat-status" role="status"></span>
+      </div>
+      <div class="sum" id="kat-sum"></div>
+      <div id="kat-list"></div>
+
+      <div class="panel" id="kat-addbox" style="display:none">
+        <h2>Tambah produk</h2>
+        <div class="row" style="margin-bottom:4px">
+          <input id="kat-newname" placeholder="Nama produk, mis. 355 Diamond" style="flex:1;min-width:160px">
+          <button class="pri" id="kat-add">Tambah</button>
+        </div>
+        <div class="err" id="kat-adderr"></div>
+      </div>
+
+      <div class="panel hide" id="kat-supbox" style="display:none">
+        <h2>Supplier Roblox</h2>
+        <div class="chips" id="kat-chips"></div>
+        <div class="row" style="margin-bottom:4px">
+          <input id="kat-newsup" placeholder="Nama supplier baru" style="flex:1;min-width:160px">
+          <button id="kat-addsup">Tambah supplier</button>
+        </div>
+        <div class="err" id="kat-superr"></div>
+      </div>
+
+      <button class="pri" id="kat-save" onclick="saveCatalog()" style="margin-top:6px;">Simpan</button>
+      <button class="ghost" id="kat-reset" style="display:none">Muat ulang dari server</button>
+    </section>
+
+    <!-- SECTION: BLOKIR -->
+    <section id="sec-blk" class="hide">
+      <div class="panel">
+        <h2>Blokir nomor atau ID game</h2>
+        <p class="note">Pesanan dari nomor WhatsApp atau ID game yang diblokir otomatis ditolak oleh server. Anda juga bisa memblokir langsung dari kartu pesanan (tombol "Batalkan &amp; blokir").</p>
+        <div class="grid" style="margin-top:10px">
+          <div class="f"><label for="blk-kind">Jenis</label><select id="blk-kind"><option value="wa">Nomor WhatsApp</option><option value="target">ID game</option></select></div>
+          <div class="f"><label for="blk-val">Nomor / ID</label><input id="blk-val" maxlength="100" placeholder="mis. 0812xxxxxxx"></div>
+          <div class="f" style="grid-column:1 / -1"><label for="blk-reason">Alasan</label><input id="blk-reason" maxlength="200" placeholder="mis. Pesanan palsu berulang"></div>
+          <div class="f" style="grid-column:1 / -1"><button class="pri" id="blk-add" style="width:100%">Blokir</button></div>
+        </div>
+        <div class="err" id="blk-err"></div>
+      </div>
+      <div id="blk-list"></div>
+      <div class="note" id="blk-msg"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- SCRIPT JS -->
+<script src="js/dashboard-pin.js"></script>
+<script src="js/dashboard-app.js?v=8"></script>
+<script src="js/dashboard-summary.js"></script>
+<script src="js/dashboard-cf.js"></script>
+<script src="js/dashboard-recap.js?v=3"></script>
+<script src="js/dashboard-ui.js?v=14"></script>
+<script src="js/order-detail-popup.js?v=6"></script>
+<script src="js/manual-transaction.js?v=1"></script>
+
+<!-- ============ MODAL BUKTI PEMBAYARAN ============ -->
+<div id="proofModal" hidden>
+  <div class="proof-backdrop" onclick="closePaymentProof()"></div>
+  <div class="proof-dialog" role="dialog" aria-modal="true">
+    <header class="proof-head">
+      <div>
+        <h3>Bukti Pembayaran</h3>
+        <p id="proofModalMeta">-</p>
+      </div>
+      <div class="proof-actions">
+        <a id="proofDownloadBtn" class="proof-btn" download target="_blank" rel="noopener">⬇ Unduh</a>
+        <button type="button" class="proof-btn" onclick="closePaymentProof()" aria-label="Tutup">✕</button>
+      </div>
+    </header>
+    <div class="proof-body" id="proofModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ PWA: banner pasang & status offline ============ -->
+<div id="offlineBadge" hidden>Tidak ada koneksi internet</div>
+<div id="installBar" hidden>
+  <span>Pasang <b>Prince Admin</b> sebagai aplikasi</span>
+  <span>
+    <button type="button" id="installBtn">Pasang</button>
+    <button type="button" id="installClose" aria-label="Tutup">✕</button>
+  </span>
+</div>
+
+<script>
+(function () {
+  // 1) Daftarkan service worker (hanya jalan di https atau localhost)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (e) {
+        console.warn('Service worker gagal didaftarkan:', e);
+      });
+    });
+  }
+
+  // 2) Tombol "Pasang" (Android/Chrome/Edge). iPhone: Bagikan > Tambah ke Layar Utama
+  var deferred = null;
+  var bar = document.getElementById('installBar');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    try { if (localStorage.getItem('pwa-install-dismissed') === '1') return; } catch (_) {}
+    bar.hidden = false;
+  });
+  document.getElementById('installBtn').addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.finally(function () { deferred = null; bar.hidden = true; });
+  });
+  document.getElementById('installClose').addEventListener('click', function () {
+    bar.hidden = true;
+    try { localStorage.setItem('pwa-install-dismissed', '1'); } catch (_) {}
+  });
+  window.addEventListener('appinstalled', function () { bar.hidden = true; });
+
+  // 3) Penanda offline
+  var badge = document.getElementById('offlineBadge');
+  function sync() { badge.hidden = navigator.onLine; }
+  window.addEventListener('online', sync);
+  window.addEventListener('offline', sync);
+  sync();
+})();
+</script>
+
+</body>
+</html>
