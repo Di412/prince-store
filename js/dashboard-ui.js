@@ -2,6 +2,7 @@
    Pelengkap tampilan baru (dipakai bersama css/dashboard-ui.css):
    - grafik pendapatan + pilihan periode di kotak Laba Bersih
    - tombol aksi cepat dan daftar "Pesanan terbaru" di Beranda
+     (klik baris -> pindah ke Pesanan Masuk + buka popup rincian pesanan)
    - tab menu bawah di HP, dan foto profil di header
 */
 (function () {
@@ -52,14 +53,14 @@
   function buildAvatar() {
     var t = $('theme-toggle');
     if (!t || document.querySelector('.hdr-right')) return;
-    
+
     // Tambahkan CSS untuk menyesuaikan logo di Header & Sidebar
     if (!document.getElementById('avatar-styles')) {
       var style = document.createElement('style');
       style.id = 'avatar-styles';
       style.innerHTML = `
         .avatar, .brand img { transition: all 0.3s ease; }
-        
+
         /* --- MODE GELAP (DEFAULT) --- */
         .brand span {
           color: #000000 !important; /* Tulisan Official Finance menjadi Hitam */
@@ -81,10 +82,10 @@
           padding: 2px;
           border-radius: 8px;
         }
-        
+
         /* Tulisan Official Finance di mode terang menjadi Kuning Gelap */
         body.light-mode .brand span {
-          color: #ca8a04 !important; 
+          color: #ca8a04 !important;
         }
       `;
       document.head.appendChild(style);
@@ -108,9 +109,9 @@
     if (!t || document.querySelector('.greet')) return;
     var g = document.createElement('div');
     g.className = 'greet';
-    
+
     g.innerHTML = '<small class="txt-welcome">Welcome,</small><b class="txt-name">Bos Prince</b>';
-    
+
     if (!document.getElementById('greet-styles')) {
       var style = document.createElement('style');
       style.id = 'greet-styles';
@@ -121,9 +122,9 @@
 
         /* --- MODE TERANG (LIGHT MODE) --- */
         body.light-mode .txt-welcome { color: #000000 !important; } /* Hitam */
-        body.light-mode .txt-name { 
+        body.light-mode .txt-name {
           color: #facc15 !important; /* Kuning Terang */
-          text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; 
+          text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
         }
       `;
       document.head.appendChild(style);
@@ -292,7 +293,7 @@
       ].map(function (a) {
         return '<button type="button" class="qa-i" data-go="' + a[0] + '">' + a[1] + '<span>' + a[2] + '</span></button>';
       }).join('');
-      
+
       var heroBox = sec.querySelector('.hero');
       if (heroBox) {
         heroBox.insertAdjacentElement('afterend', qa);
@@ -311,12 +312,23 @@
       box.className = 'panel';
       var last = sec.querySelector(':scope > .panel:not([id])');
       if (last) sec.insertBefore(box, last); else sec.appendChild(box);
+
+      // Klik baris pesanan: pindah ke Pesanan Masuk lalu buka popup rincian pesanan itu.
+      // Tombol "Lihat semua" tidak membawa ID, jadi hanya pindah halaman.
+      var openFromRow = function (row) {
+        go('pesanan');
+        var id = row.getAttribute('data-order-id');
+        if (id && typeof window.openOrderDetail === 'function') window.openOrderDetail(id);
+      };
       box.addEventListener('click', function (e) {
-        if (e.target.closest('[data-go]')) go('pesanan');
+        var row = e.target.closest('[data-go]');
+        if (row) openFromRow(row);
       });
       box.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && e.target.closest('[data-go]')) go('pesanan');
-    });
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var row = e.target.closest('[data-go]');
+        if (row) { e.preventDefault(); openFromRow(row); }
+      });
     }
   }
 
@@ -343,7 +355,7 @@
       var t = GAME_TINT[g] || ['#8b5cf6', (g || '?').slice(0, 2).toUpperCase()];
       var when = formatTanggalPendekWITA(o.created_at);
       var done = isDone(o), st = status(o);
-      return '<div class="tx" data-go="pesanan" role="link" tabindex="0" style="cursor:pointer">' +
+      return '<div class="tx" data-go="pesanan" data-order-id="' + esc(o.id_transaksi) + '" role="link" tabindex="0" style="cursor:pointer">' +
         '<div class="tx-ic" style="background:' + t[0] + '26;color:' + t[0] + '">' + esc(t[1]) + '</div>' +
         '<div class="tx-m"><div class="tx-t">' + esc(o.nama_produk || ('Item ' + (o.item || '-'))) + '</div>' +
           '<div class="tx-s">' + esc(gameLabel(g)) + ' · ' + esc(when) + '</div></div>' +

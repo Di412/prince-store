@@ -16,7 +16,7 @@
   var STORE_TAGLINE = 'Top Up Game Termurah & Tercepat';
   var STORE_WA      = '0821-1328-9026';
   var STORE_SITE    = 'di412.github.io/prince-store';
-  var STORE_COMPANY = 'OFFICIAL OF DLANE COMPANY';
+  var STORE_COMPANY = 'OFFICIAL OF DLANZ COMPANY';
   var LOGO_SRC      = 'logo-profil.png';   // ganti jika logo struk website memakai file lain
 
   var STATUS = [
@@ -182,6 +182,12 @@
     });
   }
 
+  /* Dipanggil dari Beranda (dashboard-ui.js): buka popup rincian untuk satu pesanan */
+  window.openOrderDetail = function (id) {
+    var order = findOrder(id);
+    if (order) open(order);
+  };
+
   $('odpProof').addEventListener('click', function () {
     if (!current) return;
     if (typeof openPaymentProof === 'function') {
@@ -211,10 +217,14 @@
     return '62' + d;
   }
 
-  // created_at dari database bertipe UTC ("2026-10-30 10:44:32"); tampilkan dalam WITA
-  // (formatTanggalJamWITA ada di dashboard-app.js dan sudah menangani UTC tanpa "Z")
+  // created_at dari database bertipe UTC ("2026-10-30 10:44:32"); tampilkan dalam WITA.
+  // Memakai formatTanggalJamWITA dari dashboard-app.js bila ada, jika tidak memakai cadangan di bawah.
   function fmtDate(v) {
-    return formatTanggalJamWITA(v);
+    if (typeof formatTanggalJamWITA === 'function') return formatTanggalJamWITA(v);
+    var t = String(v || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}$/.test(t)) t = t.replace(' ', 'T') + 'Z';
+    var d = new Date(t);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
   }
 
   function buildReceipt(o, pays) {

@@ -26,13 +26,14 @@ function escapeHtml(s) {
 }
 
 // created_at dari D1 berformat "2026-10-30 01:40:00" (UTC tanpa penanda zona)
+// Ditampilkan dalam WITA (Asia/Makassar), sama dengan struk di dashboard.
 function formatTanggal(raw) {
     raw = String(raw || '');
     if (!raw) return '-';
     const iso = /Z|[+-]\d\d:?\d\d$/.test(raw) ? raw : raw.replace(' ', 'T') + 'Z';
     const d = new Date(iso);
     if (isNaN(d.getTime())) return raw;
-    return d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+    return d.toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
 }
 
 async function searchTransaction() {

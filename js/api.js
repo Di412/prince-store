@@ -79,7 +79,6 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
       if (!gameData[gameKey]) return;
       gameData[gameKey].items = items;
 
-      // Cari produk yang dicentang promo
       items.forEach(item => {
         if (item.is_promo === 1 && !promoItem && item.stok !== 0) {
           promoItem = item;
@@ -87,13 +86,13 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
         }
       });
 
-      if (selectedGameKey === gameKey) {
-        renderNominalItems(gameKey);
-        updateSummary();
+      if (typeof selectedGameKey !== 'undefined' && selectedGameKey === gameKey) {
+        if (typeof renderNominalItems === 'function') renderNominalItems(gameKey);
+        if (typeof updateSummary === 'function') updateSummary();
       }
     });
 
-    // Tampilkan Banner Promo Dinamis
+    // Tampilkan Banner Promo Dinamis (DENGAN PENGECEKAN NULL)
     if (promoItem) {
       const titleEl = document.getElementById('promoTitle');
       const priceEl = document.getElementById('promoNewPrice');
@@ -101,32 +100,36 @@ window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
       const badgeEl = document.getElementById('promoBadge');
       const btnEl = document.getElementById('promoBtn');
 
-      if (titleEl) {
+      // Cek apakah elemen ada di halaman ini sebelum mengubah teksnya
+      if (titleEl && priceEl) {
         titleEl.innerText = promoItem.name;
         priceEl.innerText = `Rp ${Number(promoItem.price).toLocaleString('id-ID')}`;
 
-        // Jika ada harga coret (diskon)
         if (Number(promoItem.harga_asli) > Number(promoItem.price)) {
-          oldPriceEl.innerText = `Rp ${Number(promoItem.harga_asli).toLocaleString('id-ID')}`;
-          oldPriceEl.classList.remove('hidden');
-
-          const diskon = Math.round(((promoItem.harga_asli - promoItem.price) / promoItem.harga_asli) * 100);
-          badgeEl.innerText = `HEMAT ${diskon}%`;
-          badgeEl.classList.remove('hidden');
+          if (oldPriceEl) {
+            oldPriceEl.innerText = `Rp ${Number(promoItem.harga_asli).toLocaleString('id-ID')}`;
+            oldPriceEl.classList.remove('hidden');
+          }
+          if (badgeEl) {
+            const diskon = Math.round(((promoItem.harga_asli - promoItem.price) / promoItem.harga_asli) * 100);
+            badgeEl.innerText = `HEMAT ${diskon}%`;
+            badgeEl.classList.remove('hidden');
+          }
         } else {
-          oldPriceEl.classList.add('hidden');
-          badgeEl.classList.add('hidden');
+          if (oldPriceEl) oldPriceEl.classList.add('hidden');
+          if (badgeEl) badgeEl.classList.add('hidden');
         }
 
-        // Tombol langsung menuju ke produk promo
-        btnEl.onclick = () => {
-          resetView();
-          selectGame(promoGame);
-          setTimeout(() => {
-            const itemCard = document.querySelector(`.item-card[data-item-id="${promoItem.id}"]`);
-            if (itemCard) selectNominal(promoItem, itemCard);
-          }, 100);
-        };
+        if (btnEl) {
+          btnEl.onclick = () => {
+            if (typeof resetView === 'function') resetView();
+            if (typeof selectGame === 'function') selectGame(promoGame);
+            setTimeout(() => {
+              const itemCard = document.querySelector(`.item-card[data-item-id="${promoItem.id}"]`);
+              if (itemCard && typeof selectNominal === 'function') selectNominal(promoItem, itemCard);
+            }, 100);
+          };
+        }
       }
     }
 
