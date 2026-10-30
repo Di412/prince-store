@@ -6,6 +6,22 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Dashboard Keuangan</title>
 
+<!-- ===== Ukuran tampilan di HP Android =====
+     Seluruh halaman dikecilkan agar lebih padat. Ubah angka SKALA:
+     0.80 = lebih kecil, 0.85 = bawaan, 0.90 = sedikit lebih besar, 1 = ukuran asli.
+     Hanya berlaku di HP Android; komputer dan iPhone tidak terpengaruh. -->
+<script>
+(function () {
+  var SKALA = 0.85;
+  try {
+    var kecil = Math.min(screen.width, screen.height) <= 600;
+    if (/Android/i.test(navigator.userAgent) && kecil && SKALA !== 1) {
+      document.documentElement.style.zoom = SKALA;
+    }
+  } catch (_) {}
+})();
+</script>
+
 <!-- ===== PWA: pengaturan aplikasi ===== -->
 <link rel="manifest" href="manifest-admin.webmanifest">
 <meta name="theme-color" content="#0f172a">
