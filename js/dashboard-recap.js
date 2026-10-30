@@ -243,7 +243,7 @@
 
   function markUpdated() {
     var u = $('updated');
-    if (u) u.textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    if (u) u.textContent = 'Diperbarui ' + formatJamWITA(new Date());
   }
   function loadHomeProducts() {
     if (productsFetched || typeof apiFetch !== 'function') return;

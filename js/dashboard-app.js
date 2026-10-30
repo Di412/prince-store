@@ -1,3 +1,39 @@
+// --- FORMAT WAKTU (zona WITA) ---
+const DASH_TZ = 'Asia/Makassar';
+const DASH_TZ_LABEL = 'WITA';
+
+function waktuParts(value, monthStyle) {
+    if (!value) return null;
+    let v = value;
+    // created_at dari database = UTC tanpa penanda zona ("2026-10-30 10:44:32"); anggap UTC
+    if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}$/.test(v.trim())) {
+        v = v.trim().replace(' ', 'T') + 'Z';
+    }
+    const d = v instanceof Date ? v : new Date(v);
+    if (isNaN(d.getTime())) return null;
+    const p = {};
+    new Intl.DateTimeFormat('id-ID', {
+        timeZone: DASH_TZ, day: '2-digit', month: monthStyle || '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(d).forEach(x => { p[x.type] = x.value; });
+    return p;
+}
+// 17.44 WITA
+function formatJamWITA(v) {
+    const p = waktuParts(v);
+    return p ? `${p.hour}.${p.minute} ${DASH_TZ_LABEL}` : '-';
+}
+// 30/10/2026, 17.44 WITA
+function formatTanggalJamWITA(v) {
+    const p = waktuParts(v);
+    return p ? `${p.day}/${p.month}/${p.year}, ${p.hour}.${p.minute} ${DASH_TZ_LABEL}` : '-';
+}
+// 30 Okt, 17.44 WITA
+function formatTanggalPendekWITA(v) {
+    const p = waktuParts(v, 'short');
+    return p ? `${parseInt(p.day, 10)} ${p.month}, ${p.hour}.${p.minute} ${DASH_TZ_LABEL}` : '-';
+}
+
 // --- VARIABEL GLOBAL ---
 function getProofUrl(order) {
     if (!order) return '';
@@ -8,6 +44,8 @@ function getProofUrl(order) {
 let globalOrdersData = [];
 
 // --- 1. FUNGSI LOAD PESANAN ---
+const ACTIVE_STATUS = ['Menunggu Pembayaran', 'Diproses', 'Masalah Transaksi'];
+const STATUS_COLOR = { 'Menunggu Pembayaran':'#f59e0b', 'Diproses':'#3b82f6', 'Masalah Transaksi':'#ef4444', 'Selesai':'#10b981', 'Sukses':'#10b981' };
 async function loadOrders() {
     const ordWait = document.getElementById('ord-wait');
     if (ordWait) ordWait.innerHTML = '<p class="note">Memuat data pesanan...</p>';
@@ -37,6 +75,7 @@ function updateHeroSummary() {
 }
 
 // --- 3. FUNGSI MENAMPILKAN KARTU PESANAN ---
+// Ganti SELURUH fungsi renderOrderList lama dengan yang ini.
 function renderOrderList(ordersToRender) {
     const ordWait = document.getElementById('ord-wait');
     let htmlWaiting = "", htmlDone = "", countWaiting = 0;
@@ -48,16 +87,14 @@ function renderOrderList(ordersToRender) {
     }
 
     ordersToRender.forEach(order => {
-        let dateStr = '-';
-        if (order.created_at) {
-            const d = new Date(order.created_at);
-            if (!isNaN(d.getTime())) dateStr = d.toLocaleString('id-ID');
-        }
+        const dateStr = formatTanggalJamWITA(order.created_at);
 
         const statusTrim = order.status ? order.status.trim() : "";
+        const isActive = ACTIVE_STATUS.includes(statusTrim);          // <-- BARU
+        const badgeColor = STATUS_COLOR[statusTrim] || '#64748b';     // <-- BARU
         let actionButton = '';
 
-        if (statusTrim === "Menunggu Pembayaran" || statusTrim === "Diproses") {
+        if (isActive) {                                               // <-- BARU
             actionButton = `<button onclick="ubahStatus('${order.id_transaksi}', 'Selesai')" style="margin-top:10px; background:#10b981; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Tandai Selesai</button>`;
         } else {
             actionButton = `<button onclick="hapusRiwayat('${order.id_transaksi}')" style="margin-top:10px; background:#ef4444; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Hapus Riwayat</button>`;
@@ -78,7 +115,7 @@ function renderOrderList(ordersToRender) {
             <div class="order-card" data-order-id="${order.id_transaksi || ''}" style="margin-bottom:10px; padding: 15px; border-radius: 8px;">
                 <div style="display:flex; justify-content:space-between;">
                     <b>${order.id_transaksi || '-'}</b>
-                    <span class="badge" style="background:#f59e0b; color:#000; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold;">${statusTrim}</span>
+                    <span class="badge" style="background:${badgeColor}; color:#fff; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold;">${statusTrim}</span>
                 </div>
                 <div style="font-size:0.9rem; margin-top:8px;">
                     <div>Game: <b>${order.game ? order.game.toUpperCase() : '-'}</b> | Target: <b>${order.target || '-'}</b></div>
@@ -92,7 +129,7 @@ function renderOrderList(ordersToRender) {
                 </div>
             </div>`;
 
-        if (statusTrim === "Menunggu Pembayaran" || statusTrim === "Diproses") {
+        if (isActive) {                                              
             htmlWaiting += card;
             countWaiting++;
         } else {
@@ -180,11 +217,7 @@ function renderTransactionTable(data) {
             <tbody>`;
 
         data.forEach(o => {
-            let dateStr = '-';
-            if (o.created_at) {
-                const d = new Date(o.created_at);
-                if (!isNaN(d.getTime())) dateStr = d.toLocaleString('id-ID');
-            }
+            const dateStr = formatTanggalJamWITA(o.created_at);
             let color = (o.status === 'Selesai' || o.status === 'Sukses') ? 'var(--good)' : 'var(--accent)';
 
             html += `<tr style="border-bottom:1px solid var(--line-soft);">

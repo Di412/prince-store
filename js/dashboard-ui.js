@@ -314,6 +314,9 @@
       box.addEventListener('click', function (e) {
         if (e.target.closest('[data-go]')) go('pesanan');
       });
+      box.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && e.target.closest('[data-go]')) go('pesanan');
+    });
     }
   }
 
@@ -338,11 +341,9 @@
     box.innerHTML = head + '<div class="tx-list">' + list.map(function (o) {
       var g = String(o.game || '').toLowerCase();
       var t = GAME_TINT[g] || ['#8b5cf6', (g || '?').slice(0, 2).toUpperCase()];
-      var d = new Date(o.created_at);
-      var when = isNaN(d.getTime()) ? '-' :
-        d.toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      var when = formatTanggalPendekWITA(o.created_at);
       var done = isDone(o), st = status(o);
-      return '<div class="tx">' +
+      return '<div class="tx" data-go="pesanan" role="link" tabindex="0" style="cursor:pointer">' +
         '<div class="tx-ic" style="background:' + t[0] + '26;color:' + t[0] + '">' + esc(t[1]) + '</div>' +
         '<div class="tx-m"><div class="tx-t">' + esc(o.nama_produk || ('Item ' + (o.item || '-'))) + '</div>' +
           '<div class="tx-s">' + esc(gameLabel(g)) + ' · ' + esc(when) + '</div></div>' +
