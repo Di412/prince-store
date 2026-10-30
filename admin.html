@@ -25,10 +25,18 @@
 <style>
 /* Ukuran lebih ringkas khusus HP Android (angka px di bawah ini sebelum dikalikan SKALA di atas) */
 html.hp-android #ptitle { font-size: 22px !important; }
-html.hp-android .hero { padding: 16px !important; }
-html.hp-android .hero .hv { font-size: 24px !important; margin: 2px 0 8px !important; }
-html.hp-android .hero .hp div { padding: 10px !important; }
-html.hp-android .hero .hp b { font-size: 14px !important; }
+/* Kotak Laba Bersih dibuat lebih pendek */
+html.hp-android .hero { padding: 12px 14px !important; margin-top: 4px !important; margin-bottom: 12px !important; }
+html.hp-android .hero .hl { font-size: 12px !important; }
+html.hp-android .hero .hv { font-size: 24px !important; margin: 0 0 4px !important; }
+html.hp-android .hero .hp { gap: 8px !important; }
+html.hp-android .hero .hp div { padding: 7px 10px !important; }
+html.hp-android .hero .hp small { font-size: 10px !important; margin-bottom: 1px !important; }
+html.hp-android .hero .hp b { font-size: 13px !important; }
+/* Total Masuk / Perlu Diproses / Menunggu Bayar / Selesai: satu baris, bukan dua baris */
+html.hp-android .hero .hp + .hp { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; margin-top: 8px !important; }
+html.hp-android .hero .hp + .hp div { padding: 6px 7px !important; }
+html.hp-android .hero .hp + .hp small { font-size: 9px !important; line-height: 1.2 !important; }
 html.hp-android .card { padding: 12px 14px !important; }
 html.hp-android .card .l { font-size: 11px !important; margin-bottom: 4px !important; }
 html.hp-android .card .v { font-size: 22px !important; }
