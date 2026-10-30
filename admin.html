@@ -53,6 +53,24 @@ html.hp-android .spark-cap { font-size: 11px !important; }
 html.hp-android .spark-delta { font-size: 12px !important; }
 html.hp-android .rng { margin-top: 8px !important; gap: 4px !important; }
 html.hp-android .rng button { padding: 6px 4px !important; font-size: 12px !important; }
+
+/* Katalog produk: nama di atas, lalu Modal / Jual / Coret / Stok sejajar dalam satu baris, Promo di bawahnya */
+html.hp-android .kat-grid-row { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; padding: 10px !important; margin-bottom: 8px !important; }
+html.hp-android .kat-grid-row .kat-mobile-row { display: contents !important; }
+html.hp-android .kat-grid-row > :first-child { grid-column: 1 / -1 !important; }
+html.hp-android .kat-grid-row > :last-child { grid-column: 1 / -1 !important; }
+html.hp-android .kat-grid-row .mobile-label { font-size: 10px !important; margin-bottom: 2px !important; }
+html.hp-android .kat-grid-row input:not([type="checkbox"]) { padding: 6px 8px !important; font-size: 13px !important; min-width: 0 !important; }
+html.hp-android .promo-label { padding: 6px 8px !important; font-size: 13px !important; justify-content: flex-start !important; }
+
+/* Tambah produk sebagai pop up */
+html.hp-android #kat-addbox { display: none !important; }
+html.hp-android #kat-addbox.modal-open { display: block !important; position: fixed !important; left: 16px; right: 16px; top: 50%; transform: translateY(-60%); z-index: 10001; margin: 0 !important; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+html.hp-android #kat-addbox .row { flex-wrap: nowrap !important; }
+html.hp-android #kat-addbox input { max-width: none !important; }
+html.hp-android #kat-addbox .kat-modal-x { position: absolute; top: 8px; right: 8px; padding: 4px 10px !important; font-size: 14px !important; }
+#kat-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 10000; }
+#kat-backdrop.show { display: block; }
 </style>
 
 <!-- ===== PWA: pengaturan aplikasi ===== -->
@@ -531,6 +549,59 @@ html.hp-android .rng button { padding: 6px 4px !important; font-size: 12px !impo
   window.addEventListener('online', sync);
   window.addEventListener('offline', sync);
   sync();
+})();
+</script>
+
+<!-- ============ Katalog: "+ Tambah produk" membuka pop up (HP Android) ============ -->
+<script>
+(function () {
+  if (!document.documentElement.classList.contains('hp-android')) return;
+  var box = document.getElementById('kat-addbox');
+  if (!box) return;
+
+  var bd = document.createElement('div');
+  bd.id = 'kat-backdrop';
+  document.body.appendChild(bd);
+
+  var x = document.createElement('button');
+  x.type = 'button';
+  x.className = 'kat-modal-x';
+  x.setAttribute('aria-label', 'Tutup');
+  x.textContent = '✕';
+  box.insertBefore(x, box.firstChild);
+
+  function open() {
+    box.classList.add('modal-open');
+    bd.classList.add('show');
+    var i = document.getElementById('kat-newname');
+    if (i) setTimeout(function () { i.focus(); }, 50);
+  }
+  function close() {
+    box.classList.remove('modal-open');
+    bd.classList.remove('show');
+  }
+  bd.addEventListener('click', close);
+  x.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+  // Capture: dijalankan sebelum tombol lama, supaya tombol "+ Tambah produk" membuka pop up
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (!b) return;
+    if (b.id === 'kat-add') {
+      // Tutup pop up setelah produk berhasil ditambah; tetap terbuka jika ada pesan error
+      setTimeout(function () {
+        var er = document.getElementById('kat-adderr');
+        if (!er || !er.textContent.trim()) close();
+      }, 400);
+      return;
+    }
+    if (b.closest('#sec-kat') && !box.contains(b) && /tambah\s+produk/i.test(b.textContent)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      open();
+    }
+  }, true);
 })();
 </script>
 
