@@ -683,10 +683,10 @@ function payImage(i, input) {
             c.width = Math.round(img.width * scale);
             c.height = Math.round(img.height * scale);
             c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-            payData[i].gambar = c.toDataURL('image/png');
+            payData[i].gambar = c.toDataURL('image/jpeg', 0.85);
             renderPayments();
             const st = document.getElementById('pay-status');
-            if (st) st.textContent = 'Gambar diganti, tekan Simpan.';
+            if (st) st.textContent = 'Gambar QRIS diubah, tekan Simpan.';
         };
         img.src = reader.result;
     };
@@ -695,20 +695,16 @@ function payImage(i, input) {
 
 async function savePayments() {
     const st = document.getElementById('pay-status');
-    if (!payData.length) { alert('Data metode pembayaran belum dimuat.'); return; }
-    if (payData.some(m => !String(m.nama || '').trim())) { alert('Nama metode tidak boleh kosong.'); return; }
-    if (payData.some(m => !(Number(m.biaya) >= 0))) { alert('Biaya tidak boleh negatif.'); return; }
-    if (!payData.some(m => m.aktif)) { alert('Minimal satu metode harus ditampilkan di website.'); return; }
-    if (!confirm('Simpan perubahan metode pembayaran ke website?')) return;
-
+    if (!confirm('Simpan pengaturan pembayaran ke website?')) return;
     try {
         if (st) st.textContent = 'Menyimpan...';
         await apiFetch('/api/admin/payments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ methods: payData.map(m => ({ ...m, nama: String(m.nama).trim(), biaya: Number(m.biaya) || 0 })) })
+            body: JSON.stringify({ payments: payData })
         });
         if (st) st.textContent = 'Tersimpan ✔ Website sudah diperbarui.';
+        await loadPayments();
     } catch (error) {
         if (st) st.textContent = 'Gagal menyimpan.';
         alert('Gagal menyimpan: ' + error.message);

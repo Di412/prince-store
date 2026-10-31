@@ -176,7 +176,6 @@
   </div>
 
   <div id="favTrack" class="flex gap-4 overflow-x-auto pb-4 relative z-10">
-    <!-- Card 1: Mobile Legends -->
     <button type="button" onclick="selectGame('mlbb')"
       class="fav-card group relative shrink-0 w-[260px] sm:w-[320px] h-[190px] rounded-2xl overflow-hidden text-left bg-darkCard border border-cardBorder hover:border-brandGold transition-all duration-300 hover:-translate-y-1">
       <img src="https://i.pinimg.com/474x/da/8e/e7/da8ee735a4e1a99c906cec8063ef81f7.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500">
@@ -191,7 +190,6 @@
       </div>
     </button>
 
-    <!-- Card 2: Free Fire -->
     <button type="button" onclick="selectGame('ff')"
       class="fav-card group relative shrink-0 w-[260px] sm:w-[320px] h-[190px] rounded-2xl overflow-hidden text-left bg-darkCard border border-cardBorder hover:border-brandGold transition-all duration-300 hover:-translate-y-1">
       <img src="https://cdn-www.bluestacks.com/bs-images/FreeFire_DiamondsGuide_Article_FR02.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500">
@@ -206,7 +204,6 @@
       </div>
     </button>
 
-    <!-- Card 3: Roblox -->
     <button type="button" onclick="selectGame('roblox')"
       class="fav-card group relative shrink-0 w-[260px] sm:w-[320px] h-[190px] rounded-2xl overflow-hidden text-left bg-darkCard border border-cardBorder hover:border-brandGold transition-all duration-300 hover:-translate-y-1">
       <img src="https://gaming-cdn.com/images/products/13504/orig/roblox-card-100-robux-100-robux-pc-game-cover.jpg?v=1677828910" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500">
@@ -236,7 +233,6 @@
   </div>
 
   <div id="gameGrid" class="md:col-start-1 md:row-start-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-    <!-- MLBB -->
     <div onclick="selectGame('mlbb')" id="card-mlbb" class="game-card group cursor-pointer relative flex flex-col overflow-hidden rounded-2xl border border-cardBorder bg-darkCard transition-all duration-300 hover:-translate-y-1 hover:border-brandGold shadow-xl">
       <div class="relative aspect-[4/3] w-full overflow-hidden">
         <img src="https://i.pinimg.com/474x/da/8e/e7/da8ee735a4e1a99c906cec8063ef81f7.jpg" alt="Mobile Legends" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -254,7 +250,6 @@
         </div>
       </div>
     </div>
-    <!-- FF -->
     <div onclick="selectGame('ff')" id="card-ff" class="game-card group cursor-pointer relative flex flex-col overflow-hidden rounded-2xl border border-cardBorder bg-darkCard transition-all duration-300 hover:-translate-y-1 hover:border-brandGold shadow-xl">
       <div class="relative aspect-[4/3] w-full overflow-hidden">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7zKsZhftLavAnEgh3AcGxGAs_m8kL-TXz5E7ztD_FjQ&s=10" alt="Free Fire" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -272,7 +267,6 @@
         </div>
       </div>
     </div>
-    <!-- Roblox -->
     <div onclick="selectGame('roblox')" id="card-roblox" class="game-card group cursor-pointer relative flex flex-col overflow-hidden rounded-2xl border border-cardBorder bg-darkCard transition-all duration-300 hover:-translate-y-1 hover:border-brandGold shadow-xl">
       <div class="relative aspect-[4/3] w-full overflow-hidden">
         <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="Roblox" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-slate-800">
@@ -292,7 +286,6 @@
     </div>
   </div>
 
-  <!-- Banner Promo (Kanan) -->
   <div id="bannerForeground" class="fixed bottom-3 inset-x-3 z-30 md:static md:inset-auto md:z-auto md:mb-0 md:col-start-2 md:row-start-1 md:row-span-2 md:self-start">
     <div class="w-full glass-panel rounded-2xl px-4 py-3 shadow-2xl flex items-center justify-between gap-3 md:flex-col md:items-stretch md:justify-between md:gap-4 md:p-5 md:w-full border-brandGold/30">
       <img src="WDP.png" alt="Weekly Diamond Pass" class="hidden md:block md:mx-auto md:w-40 md:h-40 object-contain pointer-events-none">
@@ -340,7 +333,7 @@
   </div>
 </section>
 
-<!-- FORM TOP UP (Disembunyikan jika belum pilih game) -->
+<!-- FORM TOP UP -->
 <section id="topupFormSection" class="scroll-mt-28 hidden">
   <div class="glass-panel rounded-2xl p-4 sm:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-2xl border-brandGold/30">
     <div class="flex items-center gap-4">
@@ -368,7 +361,6 @@
           <h3 class="font-display font-bold text-lg text-white">DATA AKUN</h3>
         </div>
         
-        <!-- Input Nama Umum (Disembunyikan otomatis) -->
         <div class="mb-4" id="wrapperInputNama" style="display: none;">
           <label for="inputNama" class="block text-xs font-medium text-slate-300 mb-1.5">Username / User ID</label>
           <input type="text" id="inputNama" maxlength="50" autocomplete="name" placeholder="Masukkan data akun yang akan menerima top up"
@@ -459,7 +451,7 @@
   </div>
 </section>
 
-<!-- 7. CEK PESANAN (Tracking Section di Homepage) -->
+<!-- 7. CEK PESANAN -->
 <section id="trackSection" class="py-4 scroll-mt-28">
   <div class="glass-panel rounded-3xl p-6 sm:p-10 text-center max-w-3xl mx-auto border border-brandGold/30 shadow-yellow-glow relative overflow-hidden">
     <div class="absolute top-0 right-0 w-32 h-32 bg-brandGold/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -637,7 +629,7 @@
   </div>
 </div>
 
-<!-- ================= MODAL CEK TRANSAKSI (Header) ================= -->
+<!-- ================= MODAL CEK TRANSAKSI ================= -->
 <div id="trackModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
   <div class="glass-panel rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-brandGold/30">
     <button onclick="closeModal('trackModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white" aria-label="Tutup"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -670,12 +662,12 @@
 
 <!-- ================= SCRIPTS ================= -->
 <script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/order.js"></script>
 <script src="js/track.js?v=5"></script>
 <script src="js/helpers.js"></script>
 <script src="js/banner.js"></script>
-<!-- <script src="js/api.js"></script> -->
 
 <!-- Carousel Produk Favorit -->
 <script>
@@ -714,48 +706,54 @@
   })();
 </script>
 
-<!-- ================= SCRIPT VERIFIKASI & AUTO-FIX ================= -->
+<!-- ============================================================
+     VERIFIKASI AKUN — Neferbyte (ML/FF) + API Resmi Roblox
+     Semua request di-proxy lewat window.API (Worker roblox-proxy)
+     ============================================================ -->
 <script>
-  const PROXY_URL = 'https://roblox-proxy.prince-store31.workers.dev';
-  let debounceTimer;
+(function () {
+  'use strict';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function waitForAPI(cb, tries) {
+    tries = tries || 0;
+    if (window.API && typeof window.API.verifyAccount === 'function') return cb();
+    if (tries > 50) { console.error('[verify] window.API tidak tersedia'); return; }
+    setTimeout(function () { waitForAPI(cb, tries + 1); }, 100);
+  }
+
+  waitForAPI(function () {
     const container = document.getElementById('accountInputsContainer');
-    const inputNamaWrapper = document.getElementById('wrapperInputNama'); 
+    const inputNamaWrapper = document.getElementById('wrapperInputNama');
     const selectedGameNameEl = document.getElementById('selectedGameName');
-
     if (!container || !selectedGameNameEl) return;
 
-    // 1. SEMBUNYIKAN INPUT NAMA UMUM
+    // 1. Sembunyikan input nama umum
     const observer = new MutationObserver(() => {
-      if (inputNamaWrapper) inputNamaWrapper.style.display = 'none'; 
+      if (inputNamaWrapper) inputNamaWrapper.style.display = 'none';
     });
     observer.observe(selectedGameNameEl, { childList: true, characterData: true, subtree: true });
 
-    // 2. AUTO-FIX LABEL (Aksesibilitas)
+    // 2. Auto-fix label aksesibilitas
     function fixLabels() {
       const inputs = container.querySelectorAll('input');
       inputs.forEach((input, index) => {
         if (!input.id) input.id = 'game-input-' + index;
         const parent = input.parentElement;
         const label = parent.querySelector('label');
-        if (label && !label.htmlFor) {
-          label.htmlFor = input.id;
-        }
+        if (label && !label.htmlFor) label.htmlFor = input.id;
       });
     }
-
     fixLabels();
     const formObserver = new MutationObserver(fixLabels);
     formObserver.observe(container, { childList: true, subtree: true });
 
-    // 3. FUNGSI UI VERIFIKASI
+    // 3. Buat kartu verifikasi
     function createVerifyCard(parentEl, game) {
       let wrapper = parentEl.querySelector('.game-verify-card');
       if (!wrapper) {
         wrapper = document.createElement('div');
         wrapper.className = 'game-verify-card mt-3 hidden animate-fade-in';
-        
+
         let fallbackImg = 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png';
         if (game === 'mlbb') fallbackImg = 'https://i.pinimg.com/474x/da/8e/e7/da8ee735a4e1a99c906cec8063ef81f7.jpg';
         if (game === 'ff') fallbackImg = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7zKsZhftLavAnEgh3AcGxGAs_m8kL-TXz5E7ztD_FjQ&s=10';
@@ -781,177 +779,295 @@
       return wrapper;
     }
 
-    // 4. LOGIKA INPUT
+    // 4. Input handler
+    let debounceTimer;
     container.addEventListener('input', (e) => {
-      if (e.target && e.target.tagName === 'INPUT') {
-        const gameName = selectedGameNameEl.textContent.toLowerCase();
-        clearTimeout(debounceTimer);
-        
-        // ================= LOGIKA ROBLOX =================
-        if (gameName.includes('roblox')) {
-          let username = e.target.value.trim().replace(/^@/, '');
-          if (!username) return;
+      if (!e.target || e.target.tagName !== 'INPUT') return;
+      const gameName = (selectedGameNameEl.textContent || '').toLowerCase();
+      clearTimeout(debounceTimer);
 
-          let wrapper = e.target.parentElement.querySelector('.game-verify-card');
-          if (!wrapper) {
-            wrapper = createVerifyCard(e.target.parentElement, 'roblox');
-            e.target.classList.add('pr-12'); 
-            e.target.parentElement.classList.add('relative');
-            
-            let checkIcon = document.createElement('i');
-            checkIcon.className = 'roblox-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-lg text-brandGold block transition-colors';
-            e.target.parentElement.appendChild(checkIcon);
-          }
+      // ============ ROBLOX ============
+      if (gameName.includes('roblox')) {
+        const username = e.target.value.trim().replace(/^@/, '');
+        if (!username) return;
 
-          let checkIcon = e.target.parentElement.querySelector('.roblox-input-check');
-          wrapper.classList.add('hidden');
+        let wrapper = e.target.parentElement.querySelector('.game-verify-card');
+        if (!wrapper) {
+          wrapper = createVerifyCard(e.target.parentElement, 'roblox');
+          e.target.classList.add('pr-12');
+          e.target.parentElement.classList.add('relative');
+          const checkIcon = document.createElement('i');
           checkIcon.className = 'roblox-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-lg text-brandGold block transition-colors';
-
-          debounceTimer = setTimeout(async () => {
-            try {
-              const targetApi = 'https://users.roblox.com/v1/usernames/users';
-              const proxyUrl = `${PROXY_URL}?url=${encodeURIComponent(targetApi)}`;
-              const response = await fetch(proxyUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-              });
-              const data = await response.json();
-
-              if (data.data && data.data.length > 0) {
-                const user = data.data[0];
-                wrapper.querySelector('.gameDisplayName').innerText = user.displayName;
-                wrapper.querySelector('.gameUsername').innerText = `@${user.name}`;
-                wrapper.querySelector('.gameIdText').innerText = user.id;
-                wrapper.querySelector('.gameBadge').classList.remove('hidden');
-                wrapper.classList.remove('hidden');
-
-                const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.id}&size=150x150&format=Png&isCircular=false`;
-                const thumbRes = await fetch(`${PROXY_URL}?url=${encodeURIComponent(thumbApi)}`);
-                const thumbData = await thumbRes.json();
-                if (thumbData.data && thumbData.data.length > 0) {
-                  wrapper.querySelector('.gameAvatarImg').src = thumbData.data[0].imageUrl;
-                }
-                checkIcon.className = 'roblox-input-check fa-solid fa-circle-check absolute right-4 top-1/2 -translate-y-1/2 text-xl text-brandGold block transition-colors';
-                e.target.classList.remove('border-red-500');
-                e.target.classList.add('border-brandGold');
-              } else {
-                wrapper.classList.add('hidden');
-                checkIcon.className = 'hidden';
-                e.target.classList.add('border-red-500');
-                e.target.classList.remove('border-brandGold', 'focus:border-brandGold');
-              }
-            } catch (error) {
-              wrapper.classList.add('hidden');
-              checkIcon.className = 'hidden';
-              e.target.classList.add('border-red-500');
-              e.target.classList.remove('border-brandGold', 'focus:border-brandGold');
-            }
-          }, 800);
-        } 
-        
-        // ================= LOGIKA MLBB & FREE FIRE =================
-        else if (gameName.includes('mobile') || gameName.includes('free')) {
-          const inputs = container.querySelectorAll('input');
-          let userId = '', zoneId = '';
-          let gameType = gameName.includes('mobile') ? 'mlbb' : 'ff';
-
-          if (gameType === 'mlbb' && inputs.length >= 2) {
-            userId = inputs[0].value.trim();
-            zoneId = inputs[1].value.trim();
-            if (!userId || !zoneId) return; 
-          } else if (gameType === 'ff' && inputs.length >= 1) {
-            userId = inputs[0].value.trim();
-            if (!userId) return;
-          }
-
-          let wrapper = container.querySelector('.game-verify-card');
-          if (!wrapper) wrapper = createVerifyCard(container, gameType);
-          wrapper.classList.add('hidden');
-          
-          const lastInput = inputs[inputs.length - 1];
-          let checkIcon = lastInput.parentElement.querySelector('.dunia-input-check');
-          if (!checkIcon) {
-            lastInput.parentElement.classList.add('relative');
-            lastInput.parentElement.insertAdjacentHTML('beforeend', '<i class="dunia-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-brandGold"></i>');
-            checkIcon = lastInput.parentElement.querySelector('.dunia-input-check');
-          }
-          checkIcon.className = 'dunia-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-brandGold';
-
-          let errorText = lastInput.parentElement.parentElement.querySelector('.error-msg-text');
-          if (!errorText) {
-            errorText = document.createElement('p');
-            errorText.className = 'error-msg-text text-[11px] text-red-500 mt-1 hidden';
-            lastInput.parentElement.parentElement.appendChild(errorText);
-          }
-          errorText.classList.add('hidden');
-
-          debounceTimer = setTimeout(async () => {
-            try {
-              const targetApi = 'https://whoplays.doedja.com/api/check';
-              
-              let payload = {};
-              if (gameType === 'mlbb') {
-                payload = { game: 'mobile-legends', input: { userId: String(userId), zoneId: String(zoneId) } };
-              } else {
-                payload = { game: 'free-fire', input: { userId: String(userId) } };
-              }
-
-              const res = await fetch(`${PROXY_URL}?url=${encodeURIComponent(targetApi)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(payload)
-              });
-
-              const data = await res.json();
-              console.log('Verifikasi akun:', res.status, JSON.stringify(data));
-
-              if (res.ok && data.ok && data.username) {
-                // JIKA BERHASIL
-                wrapper.querySelector('.gameDisplayName').innerText = data.username;
-                wrapper.querySelector('.gameUsername').innerText = `User ID: ${userId} ${zoneId ? `(Zone: ${zoneId})` : ''}`;
-                wrapper.querySelector('.gameIdText').innerText = userId;
-                wrapper.querySelector('.gameBadge').classList.remove('hidden');
-                wrapper.classList.remove('hidden');
-                checkIcon.className = 'dunia-input-check fa-solid fa-circle-check absolute right-4 top-1/2 -translate-y-1/2 text-brandGold';
-                
-                inputs.forEach(inp => {
-                  inp.classList.remove('border-red-500');
-                  inp.classList.add('border-cardBorder', 'focus:border-brandGold');
-                });
-                errorText.classList.add('hidden');
-              } else {
-                // JIKA ID SALAH / TIDAK DITEMUKAN
-                wrapper.classList.add('hidden');
-                checkIcon.className = 'hidden'; 
-                
-                inputs.forEach(inp => {
-                  inp.classList.add('border-red-500');
-                  inp.classList.remove('border-cardBorder', 'focus:border-brandGold');
-                });
-                
-                errorText.innerText = 'Akun tidak ditemukan. Periksa kembali User ID dan Zone ID.';
-                errorText.classList.remove('hidden');
-              }
-            } catch (error) {
-              // JIKA ERROR JARINGAN / LIMIT
-              console.error("Sistem Error:", error);
-              wrapper.classList.add('hidden');
-              checkIcon.className = 'hidden';
-              
-              inputs.forEach(inp => {
-                inp.classList.add('border-red-500');
-                inp.classList.remove('border-cardBorder', 'focus:border-brandGold');
-              });
-              
-              errorText.innerText = 'Gagal memverifikasi. Coba lagi nanti.';
-              errorText.classList.remove('hidden');
-            }
-          }, 1000); 
+          e.target.parentElement.appendChild(checkIcon);
         }
+
+        const checkIcon = e.target.parentElement.querySelector('.roblox-input-check');
+        wrapper.classList.add('hidden');
+        checkIcon.className = 'roblox-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-lg text-brandGold block transition-colors';
+
+        debounceTimer = setTimeout(async () => {
+          try {
+            const verify = await window.API.verifyAccount('roblox', { username });
+
+            wrapper.querySelector('.gameDisplayName').innerText = verify.username;
+            wrapper.querySelector('.gameUsername').innerText = `@${username}`;
+            wrapper.querySelector('.gameIdText').innerText = verify.userId;
+            wrapper.querySelector('.gameBadge').classList.remove('hidden');
+            wrapper.classList.remove('hidden');
+            if (verify.avatar_url) wrapper.querySelector('.gameAvatarImg').src = verify.avatar_url;
+
+            checkIcon.className = 'roblox-input-check fa-solid fa-circle-check absolute right-4 top-1/2 -translate-y-1/2 text-xl text-brandGold block transition-colors';
+            e.target.classList.remove('border-red-500');
+            e.target.classList.add('border-brandGold');
+
+            // Simpan token verifikasi
+            window.__lastVerification = {
+              game: 'roblox',
+              userId: String(verify.userId),
+              zoneId: '',
+              username: verify.username,
+              token: verify.verification_token
+            };
+          } catch (err) {
+            wrapper.classList.add('hidden');
+            checkIcon.className = 'hidden';
+            e.target.classList.add('border-red-500');
+            e.target.classList.remove('border-brandGold', 'focus:border-brandGold');
+            window.__lastVerification = null;
+          }
+        }, 800);
+        return;
+      }
+
+      // ============ MLBB & FF ============
+      if (gameName.includes('mobile') || gameName.includes('free')) {
+        const inputs = container.querySelectorAll('input');
+        let userId = '', zoneId = '';
+        const gameType = gameName.includes('mobile') ? 'mlbb' : 'ff';
+
+        if (gameType === 'mlbb' && inputs.length >= 2) {
+          userId = inputs[0].value.trim();
+          zoneId = inputs[1].value.trim();
+          if (!userId || !zoneId) return;
+        } else if (gameType === 'ff' && inputs.length >= 1) {
+          userId = inputs[0].value.trim();
+          if (!userId) return;
+        } else {
+          return;
+        }
+
+        let wrapper = container.querySelector('.game-verify-card');
+        if (!wrapper) wrapper = createVerifyCard(container, gameType);
+        wrapper.classList.add('hidden');
+
+        const lastInput = inputs[inputs.length - 1];
+        let checkIcon = lastInput.parentElement.querySelector('.dunia-input-check');
+        if (!checkIcon) {
+          lastInput.parentElement.classList.add('relative');
+          lastInput.parentElement.insertAdjacentHTML('beforeend', '<i class="dunia-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-brandGold"></i>');
+          checkIcon = lastInput.parentElement.querySelector('.dunia-input-check');
+        }
+        checkIcon.className = 'dunia-input-check fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-brandGold';
+
+        let errorText = lastInput.parentElement.parentElement.querySelector('.error-msg-text');
+        if (!errorText) {
+          errorText = document.createElement('p');
+          errorText.className = 'error-msg-text text-[11px] text-red-500 mt-1 hidden';
+          lastInput.parentElement.parentElement.appendChild(errorText);
+        }
+        errorText.classList.add('hidden');
+
+        debounceTimer = setTimeout(async () => {
+          try {
+            const gameApi = gameType === 'mlbb' ? 'mobile-legends' : 'free-fire';
+            const inp = gameType === 'mlbb'
+              ? { userId: String(userId), zoneId: String(zoneId) }
+              : { userId: String(userId) };
+            const verify = await window.API.verifyAccount(gameApi, inp);
+
+            wrapper.querySelector('.gameDisplayName').innerText = verify.username;
+            wrapper.querySelector('.gameUsername').innerText =
+              `User ID: ${userId}${zoneId ? ` (Zone: ${zoneId})` : ''}`;
+            wrapper.querySelector('.gameIdText').innerText = userId;
+            wrapper.querySelector('.gameBadge').classList.remove('hidden');
+            wrapper.classList.remove('hidden');
+            checkIcon.className = 'dunia-input-check fa-solid fa-circle-check absolute right-4 top-1/2 -translate-y-1/2 text-brandGold';
+
+            inputs.forEach(inp => {
+              inp.classList.remove('border-red-500');
+              inp.classList.add('border-cardBorder', 'focus:border-brandGold');
+            });
+            errorText.classList.add('hidden');
+
+            window.__lastVerification = {
+              game: gameApi,
+              userId: String(userId),
+              zoneId: String(zoneId || ''),
+              username: verify.username,
+              token: verify.verification_token
+            };
+          } catch (err) {
+            wrapper.classList.add('hidden');
+            checkIcon.className = 'hidden';
+            inputs.forEach(inp => {
+              inp.classList.add('border-red-500');
+              inp.classList.remove('border-cardBorder', 'focus:border-brandGold');
+            });
+            errorText.innerText = err.message || 'Akun tidak ditemukan. Periksa kembali User ID dan Zone ID.';
+            errorText.classList.remove('hidden');
+            window.__lastVerification = null;
+          }
+        }, 1000);
       }
     });
   });
+})();
 </script>
+
+<!-- ============================================================
+     PATCH submitFinalOrder — kirim order + verification_token
+     ke Worker prince-store-api
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  function parseRp(str) {
+    if (!str) return 0;
+    return parseInt(String(str).replace(/[^\d]/g, ''), 10) || 0;
+  }
+
+  function waitForFunctions(cb, tries) {
+    tries = tries || 0;
+    if (typeof window.processOrder === 'function') return cb();
+    if (tries > 50) return;
+    setTimeout(function () { waitForFunctions(cb, tries + 1); }, 100);
+  }
+
+  waitForFunctions(function () {
+    // Simpan original kalau dibutuhkan sebagai fallback
+    const originalSubmitFinalOrder = window.submitFinalOrder;
+
+    window.submitFinalOrder = async function () {
+      // Cek verifikasi
+      const v = window.__lastVerification;
+      if (!v || !v.token) {
+        alert('Akun belum diverifikasi. Silakan isi User ID/Zone ID dengan benar di Step ①.');
+        return;
+      }
+
+      // Cek API tersedia
+      if (!window.API || typeof window.API.createOrder !== 'function') {
+        if (typeof originalSubmitFinalOrder === 'function') return originalSubmitFinalOrder.apply(this, arguments);
+        alert('Layanan sedang tidak tersedia. Coba lagi.');
+        return;
+      }
+
+      // Ambil data dari form
+      const fileInput = document.getElementById('confirmProofInput');
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      const gameLabel = (document.getElementById('selectedGameName') || {}).textContent || '';
+      const itemLabel = (document.getElementById('summaryItem') || {}).textContent || '';
+      const metodeLabel = (document.getElementById('summaryPayment') || {}).textContent || '';
+      const harga = parseRp((document.getElementById('summaryPrice') || {}).textContent);
+      const fee = parseRp((document.getElementById('summaryFee') || {}).textContent);
+      const total = parseRp((document.getElementById('summaryTotal') || {}).textContent);
+      const waInput = document.getElementById('inputWhatsapp');
+      const whatsapp = waInput ? String(waInput.value || '').trim() : '';
+
+      // Validasi minimal
+      if (!itemLabel || itemLabel === '-') {
+        alert('Pilih nominal produk terlebih dahulu.');
+        return;
+      }
+      if (!metodeLabel || metodeLabel === '-') {
+        alert('Pilih metode pembayaran terlebih dahulu.');
+        return;
+      }
+      if (!whatsapp || whatsapp.length < 8) {
+        alert('Nomor WhatsApp tidak valid.');
+        return;
+      }
+
+      // Nonaktifkan tombol submit
+      const submitBtn = document.getElementById('confirmSubmitButton');
+      const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+      }
+      const msgEl = document.getElementById('confirmMessage');
+      if (msgEl) msgEl.textContent = 'Mengirim pesanan...';
+
+      try {
+        // 1. Buat order di server
+        const result = await window.API.createOrder({
+          game: v.game,
+          game_label: gameLabel,
+          account: v.userId,
+          zone: v.zoneId,
+          username_verified: v.username,
+          nama: v.username,
+          item: itemLabel,
+          harga_produk: harga,
+          fee: fee,
+          total: total,
+          metode: metodeLabel.toLowerCase().replace(/\s+/g, '_'),
+          metode_label: metodeLabel,
+          whatsapp: whatsapp
+        }, v.token);
+
+        // 2. Upload bukti bayar (jika ada)
+        if (file) {
+          try {
+            await window.API.uploadPaymentProof(result.trx_id, file);
+          } catch (uploadErr) {
+            console.warn('Upload bukti gagal:', uploadErr);
+            if (msgEl) msgEl.textContent = 'Pesanan dibuat, tapi bukti bayar gagal diunggah. Hubungi CS.';
+          }
+        }
+
+        // 3. Bersihkan verifikasi (sudah dipakai)
+        window.__lastVerification = null;
+
+        // 4. Tampilkan popup sukses
+        const trxEl = document.getElementById('successTrxId');
+        if (trxEl) trxEl.textContent = result.trx_id;
+
+        // Isi juga orderSuccessPopup kalau ada
+        const psTrx = document.getElementById('orderSuccessTrx');
+        if (psTrx) psTrx.textContent = result.trx_id;
+        const psMeth = document.getElementById('orderSuccessMethod');
+        if (psMeth) psMeth.textContent = metodeLabel;
+        const psTotal = document.getElementById('orderSuccessTotal');
+        if (psTotal) psTotal.textContent = document.getElementById('summaryTotal')?.textContent || '';
+
+        // Tampilkan view sukses di dalam modal konfirmasi
+        const formView = document.getElementById('confirmFormView');
+        const successView = document.getElementById('confirmSuccessView');
+        if (formView && successView) {
+          formView.classList.add('hidden');
+          successView.classList.remove('hidden');
+        }
+
+        // Tampilkan popup sukses terpisah
+        const successPopup = document.getElementById('orderSuccessPopup');
+        if (successPopup) successPopup.classList.remove('hidden');
+
+      } catch (err) {
+        console.error('Order error:', err);
+        if (msgEl) msgEl.textContent = 'Gagal: ' + (err.message || 'Terjadi kesalahan');
+        alert('Gagal membuat pesanan: ' + (err.message || 'Terjadi kesalahan') + '\n\nSilakan coba lagi atau hubungi CS.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
+      }
+    };
+  });
+})();
+</script>
+
 </body>
 </html>

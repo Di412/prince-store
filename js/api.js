@@ -1,143 +1,109 @@
-/* Penghubung website ke server Cloudflare */
+// ============================================================
+// js/api.js — Client API untuk website toko (index.html)
+// ============================================================
+(function () {
+  'use strict';
 
-// 1. TAMBAHKAN URL CLOUDFLARE WORKER ANDA DI SINI
-const API_BASE_URL = "https://prince-store.prince-store31.workers.dev";
+  const API_BASE = 'https://prince-store.prince-store31.workers.dev/';
+  const CACHE_KEY = 'prince_public_data_v1';
+  const CACHE_TTL = 5 * 60 * 1000;
 
-async function apiRequest(path, options) {
-  let res;
-  try {
-    res = await fetch(API_BASE_URL + path, options);
-  } catch (e) {
-    throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
-  }
-  let data = null;
-  try { data = await res.json(); } catch (e) { /* respons bukan JSON */ }
-  if (!res.ok) throw new Error((data && data.error) || `Permintaan gagal (${res.status}).`);
-  return data;
-}
-
-// Dipakai oleh track.js
-window.apiRequest = apiRequest;
-
-window.saveOrderToFirebase = orderData =>
-  apiRequest('/api/orders', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      game: orderData.game,
-      produk_id: orderData.produk_id,
-      metode_id: orderData.metode_id,
-      target: orderData.target,
-      nama: orderData.nama,
-      wa: orderData.wa
-    })
-  });
-
-// Lacak pesanan cukup dengan ID transaksi (tanpa nomor WA)
-window.lookupCustomerOrder = orderId =>
-  apiRequest(`/api/orders/${encodeURIComponent(orderId)}`);
-
-window.uploadCustomerPaymentProof = async (orderId, wa, file) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-  if (!allowedTypes.includes(file.type) || file.size > 4 * 1024 * 1024) {
-    throw new Error('Pilih bukti JPG, PNG, WEBP, atau PDF dengan ukuran maksimal 4 MB.');
-  }
-
-  const formData = new FormData();
-  formData.append("orderId", orderId);
-  formData.append("wa", wa);
-  formData.append("file", file);
-
-  try {
-    const res = await fetch(API_BASE_URL + '/api/upload-proof', {
-      method: 'POST',
-      body: formData
-    });
-
-    let data = null;
-    try { data = await res.json(); } catch (e) { /* abaikan */ }
-
-    if (!res.ok) {
-      throw new Error((data && data.error) || `Gagal upload bukti (${res.status}).`);
+  async function fetchPublicData(force) {
+    if (!force) {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const { data, ts } = JSON.parse(raw);
+          if (Date.now() - ts < CACHE_TTL) return data;
+        }
+      } catch {}
     }
-
+    const res = await fetch(API_BASE + '/api/public-data', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() })); } catch {}
     return data;
-  } catch (error) {
-    console.error("Upload Error:", error);
-    throw new Error(error.message || 'Tidak dapat terhubung ke server saat mengunggah bukti.');
   }
-};
 
-// Ambil produk dan metode pembayaran dari server.
-(async function loadCatalog() {
-  try {
-    const catalog = await apiRequest('/api/catalog');
-    let promoItem = null;
-    let promoGame = 'mlbb';
-
-    Object.entries(catalog.products || {}).forEach(([gameKey, items]) => {
-      if (!gameData[gameKey]) return;
-      gameData[gameKey].items = items;
-
-      items.forEach(item => {
-        if (item.is_promo === 1 && !promoItem && item.stok !== 0) {
-          promoItem = item;
-          promoGame = gameKey;
-        }
-      });
-
-      if (typeof selectedGameKey !== 'undefined' && selectedGameKey === gameKey) {
-        if (typeof renderNominalItems === 'function') renderNominalItems(gameKey);
-        if (typeof updateSummary === 'function') updateSummary();
-      }
+  function groupBy(arr, key) {
+    const m = {};
+    (arr || []).forEach(x => {
+      const k = x[key] || 'lainnya';
+      (m[k] = m[k] || []).push(x);
     });
+    return m;
+  }
 
-    // Tampilkan Banner Promo Dinamis (DENGAN PENGECEKAN NULL)
-    if (promoItem) {
-      const titleEl = document.getElementById('promoTitle');
-      const priceEl = document.getElementById('promoNewPrice');
-      const oldPriceEl = document.getElementById('promoOldPrice');
-      const badgeEl = document.getElementById('promoBadge');
-      const btnEl = document.getElementById('promoBtn');
+  // Bootstrap — dipanggil sekali saat halaman load
+  async function bootstrap() {
+    try {
+      const data = await fetchPublicData();
+      window.API_DATA = {
+        catalog: data.catalog || [],
+        byGame: groupBy(data.catalog, 'game'),
+        payments: data.payment_methods || [],
+        paymentsByGroup: groupBy(data.payment_methods, 'group'),
+        banners: data.banners || []
+      };
+      // Kompatibilitas dengan js/ui.js / js/data.js lama:
+      // Timpa global produk/payments dengan data API.
+      try { if (typeof window.PRODUK !== 'undefined') window.PRODUK = window.API_DATA.byGame; } catch {}
+      try { if (typeof window.PAYMENT_METHODS !== 'undefined') window.PAYMENT_METHODS = window.API_DATA.payments; } catch {}
 
-      // Cek apakah elemen ada di halaman ini sebelum mengubah teksnya
-      if (titleEl && priceEl) {
-        titleEl.innerText = promoItem.name;
-        priceEl.innerText = `Rp ${Number(promoItem.price).toLocaleString('id-ID')}`;
+      // Re-render jika ui.js menyediakan fungsi render
+      ['renderGameGrid', 'renderNominalGrid', 'renderPaymentMethods', 'renderBanners', 'renderFavorites']
+        .forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) { console.warn(fn, e); } });
 
-        if (Number(promoItem.harga_asli) > Number(promoItem.price)) {
-          if (oldPriceEl) {
-            oldPriceEl.innerText = `Rp ${Number(promoItem.harga_asli).toLocaleString('id-ID')}`;
-            oldPriceEl.classList.remove('hidden');
-          }
-          if (badgeEl) {
-            const diskon = Math.round(((promoItem.harga_asli - promoItem.price) / promoItem.harga_asli) * 100);
-            badgeEl.innerText = `HEMAT ${diskon}%`;
-            badgeEl.classList.remove('hidden');
-          }
-        } else {
-          if (oldPriceEl) oldPriceEl.classList.add('hidden');
-          if (badgeEl) badgeEl.classList.add('hidden');
-        }
-
-        if (btnEl) {
-          btnEl.onclick = () => {
-            if (typeof resetView === 'function') resetView();
-            if (typeof selectGame === 'function') selectGame(promoGame);
-            setTimeout(() => {
-              const itemCard = document.querySelector(`.item-card[data-item-id="${promoItem.id}"]`);
-              if (itemCard && typeof selectNominal === 'function') selectNominal(promoItem, itemCard);
-            }, 100);
-          };
-        }
-      }
+      window.dispatchEvent(new CustomEvent('prince:data-ready', { detail: window.API_DATA }));
+    } catch (e) {
+      console.warn('[api.js] gagal fetch API, pakai data statis:', e);
     }
+  }
 
-    if (Array.isArray(catalog.paymentMethods) && catalog.paymentMethods.length) {
-      window.paymentConfiguration = catalog.paymentMethods;
-      if (typeof renderPayments === 'function') renderPayments();
-    }
-  } catch (e) {
-    console.error('Gagal mengambil katalog:', e);
+  async function verifyAccount(game, input) {
+    const res = await fetch(API_BASE + '/api/verify-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game, input })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) throw new Error(data.error || 'Verifikasi gagal');
+    return data;
+  }
+
+  async function createOrder(order, verificationToken) {
+    const res = await fetch(API_BASE + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({}, order, { verification_token: verificationToken }))
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) throw new Error(data.error || 'Gagal membuat order');
+    return data;
+  }
+
+  async function uploadPaymentProof(trxId, file) {
+    const fd = new FormData();
+    fd.append('order_id', trxId);
+    fd.append('file', file);
+    const res = await fetch(API_BASE + '/api/upload-proof', { method: 'POST', body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) throw new Error(data.error || 'Upload bukti gagal');
+    return data;
+  }
+
+  async function trackOrder(trxId) {
+    const res = await fetch(API_BASE + '/api/track/' + encodeURIComponent(trxId));
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) throw new Error(data.error || 'Order tidak ditemukan');
+    return data;
+  }
+
+  window.API = { fetchPublicData, bootstrap, verifyAccount, createOrder, uploadPaymentProof, trackOrder };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    bootstrap();
   }
 })();
