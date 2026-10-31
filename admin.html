@@ -54,23 +54,62 @@ html.hp-android .spark-delta { font-size: 12px !important; }
 html.hp-android .rng { margin-top: 8px !important; gap: 4px !important; }
 html.hp-android .rng button { padding: 6px 4px !important; font-size: 12px !important; }
 
-/* Katalog produk: nama di atas, lalu Modal / Jual / Coret / Stok sejajar dalam satu baris, Promo di bawahnya */
-html.hp-android .kat-grid-row { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; padding: 10px !important; margin-bottom: 8px !important; }
-html.hp-android .kat-grid-row .kat-mobile-row { display: contents !important; }
-html.hp-android .kat-grid-row > :first-child { grid-column: 1 / -1 !important; }
-html.hp-android .kat-grid-row > :last-child { grid-column: 1 / -1 !important; }
-html.hp-android .kat-grid-row .mobile-label { font-size: 10px !important; margin-bottom: 2px !important; }
-html.hp-android .kat-grid-row input:not([type="checkbox"]) { padding: 6px 8px !important; font-size: 13px !important; min-width: 0 !important; }
-html.hp-android .promo-label { padding: 6px 8px !important; font-size: 13px !important; justify-content: flex-start !important; }
+/* ===== Katalog produk: daftar ringkas + pop up (semua perangkat) ===== */
+.kt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.kt-head p { color: var(--muted); font-size: 13px; line-height: 1.4; max-width: 360px; }
+.kt-add { background: var(--accent); color: #111; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 800; white-space: nowrap; }
+.kt-add:hover { color: #111; border-color: transparent; filter: brightness(1.08); }
+.kt-tools { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.kt-tools input { flex: 1; min-width: 180px; max-width: none; }
+.kt-tools select { width: auto; min-width: 170px; max-width: none; }
+.kt-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
+.kt-th, .kt-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px 110px 80px 44px; gap: 10px; align-items: center; padding: 12px 16px; }
+.kt-th { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--line); }
+.kt-row { border-bottom: 1px solid var(--line); cursor: pointer; }
+.kt-row:last-child { border-bottom: none; }
+.kt-row:hover { background: var(--accent-soft); }
+.kt-prod { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.kt-ic { width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.kt-txt { min-width: 0; }
+.kt-name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kt-sub { font-size: 12px; color: var(--muted); }
+.kt-promo { color: var(--accent); font-weight: 700; }
+.kt-price { font-weight: 800; color: var(--accent); font-size: 14px; }
+.kt-price s { display: block; color: var(--muted); font-weight: 500; font-size: 11px; }
+.kt-mdl { color: var(--muted); font-size: 14px; }
+.kt-stok { display: inline-block; min-width: 30px; text-align: center; padding: 4px 8px; border-radius: 8px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 700; }
+.kt-stok.kt-out { background: rgba(239, 68, 68, .15); color: var(--bad); }
+.kt-more { background: transparent; border: none; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px 8px; border-radius: 8px; }
+.kt-more:hover { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.kt-empty { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+@media (max-width: 768px) {
+  .kt-th, .kt-row { grid-template-columns: minmax(0, 1fr) 92px 52px 32px; padding: 10px 12px; gap: 8px; }
+  .kt-th .kt-c-mdl, .kt-row .kt-c-mdl { display: none; }
+  .kt-ic { width: 40px; height: 40px; font-size: 20px; }
+  .kt-head p { font-size: 12px; }
+  .kt-add { padding: 10px 12px; font-size: 13px; }
+  .kt-tools select { flex: 1; }
+}
 
-/* Tambah produk sebagai pop up */
-html.hp-android #kat-addbox { display: none !important; }
-html.hp-android #kat-addbox.modal-open { display: block !important; position: fixed !important; left: 16px; right: 16px; top: 50%; transform: translateY(-60%); z-index: 10001; margin: 0 !important; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-html.hp-android #kat-addbox .row { flex-wrap: nowrap !important; }
-html.hp-android #kat-addbox input { max-width: none !important; }
-html.hp-android #kat-addbox .kat-modal-x { position: absolute; top: 8px; right: 8px; padding: 4px 10px !important; font-size: 14px !important; }
-#kat-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 10000; }
-#kat-backdrop.show { display: block; }
+/* Pop up edit / tambah produk */
+#kt-bd { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .65); align-items: center; justify-content: center; padding: 16px; }
+#kt-bd.show { display: flex; }
+#kt-dlg { background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 18px; width: min(440px, 100%); max-height: 92vh; overflow: auto; padding: 20px; box-shadow: 0 25px 60px rgba(0, 0, 0, .5); }
+#kt-dlg .kt-dh { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+#kt-dlg h3 { font-size: 18px; font-weight: 800; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#kt-dlg .kt-x { background: transparent; border: none; color: var(--muted); font-size: 18px; padding: 4px 8px; }
+#kt-dlg .kt-f { margin-bottom: 12px; }
+#kt-dlg .kt-f label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
+#kt-dlg .kt-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#kt-dlg input[type="text"], #kt-dlg input[type="number"], #kt-dlg select { width: 100%; max-width: none; padding: 11px 12px; font-size: 15px; }
+#kt-dlg .kt-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+#kt-dlg .kt-chk { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; margin: 4px 0 12px; }
+#kt-dlg .kt-chk input { width: auto; max-width: none; padding: 0; }
+#kt-dlg .kt-err { color: var(--bad); font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+#kt-dlg .kt-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#kt-dlg .kt-btns button { padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 800; }
+#kt-dlg .kt-pri { background: var(--accent); color: #111; border: none; }
+#kt-dlg .kt-pri:hover { color: #111; filter: brightness(1.08); }
 </style>
 
 <!-- ===== PWA: pengaturan aplikasi ===== -->
@@ -552,56 +591,199 @@ html.hp-android #kat-addbox .kat-modal-x { position: absolute; top: 8px; right: 
 })();
 </script>
 
-<!-- ============ Katalog: "+ Tambah produk" membuka pop up (HP Android) ============ -->
+<!-- ============ Katalog produk: daftar ringkas + pop up edit/tambah ============
+     Menimpa tampilan renderCatalog() dari dashboard-app.js. Data (catalogData), catalogEdit() dan
+     saveCatalog() tetap milik dashboard-app.js, jadi cara menyimpan ke server tidak berubah. -->
 <script>
 (function () {
-  if (!document.documentElement.classList.contains('hp-android')) return;
-  var box = document.getElementById('kat-addbox');
-  if (!box) return;
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var rp = function (n) { return 'Rp' + (Number(n) || 0).toLocaleString('id-ID'); };
+  var ICON = { ff: '💎', mlbb: '💎', roblox: '🎮' };
 
-  var bd = document.createElement('div');
-  bd.id = 'kat-backdrop';
-  document.body.appendChild(bd);
+  var fGame = null;   // game yang sedang ditampilkan ('all' = semua)
+  var fQuery = '';    // kata pencarian
+  var editIdx = -1;   // indeks produk yang diedit; -1 = produk baru
+  var wired = false;
 
-  var x = document.createElement('button');
-  x.type = 'button';
-  x.className = 'kat-modal-x';
-  x.setAttribute('aria-label', 'Tutup');
-  x.textContent = '✕';
-  box.insertBefore(x, box.firstChild);
-
-  function open() {
-    box.classList.add('modal-open');
-    bd.classList.add('show');
-    var i = document.getElementById('kat-newname');
-    if (i) setTimeout(function () { i.focus(); }, 50);
+  function data() { return (typeof catalogData !== 'undefined' && Array.isArray(catalogData)) ? catalogData : []; }
+  function games() {
+    var g = [];
+    data().forEach(function (p) { var k = p.game || 'lainnya'; if (g.indexOf(k) < 0) g.push(k); });
+    return g;
   }
-  function close() {
-    box.classList.remove('modal-open');
-    bd.classList.remove('show');
+  function label(g) {
+    var m = (typeof GAME_LABEL !== 'undefined') ? GAME_LABEL : {};
+    return m[String(g).toLowerCase()] || String(g).toUpperCase();
   }
-  bd.addEventListener('click', close);
-  x.addEventListener('click', close);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  function stokHtml(s) {
+    s = (s === undefined || s === null) ? -1 : Number(s);
+    if (s === -1) return '<span class="kt-stok" title="Tak terbatas">∞</span>';
+    if (!(s > 0)) return '<span class="kt-stok kt-out">Habis</span>';
+    return '<span class="kt-stok">' + s + '</span>';
+  }
 
-  // Capture: dijalankan sebelum tombol lama, supaya tombol "+ Tambah produk" membuka pop up
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('button');
-    if (!b) return;
-    if (b.id === 'kat-add') {
-      // Tutup pop up setelah produk berhasil ditambah; tetap terbuka jika ada pesan error
-      setTimeout(function () {
-        var er = document.getElementById('kat-adderr');
-        if (!er || !er.textContent.trim()) close();
-      }, 400);
-      return;
+  // ---------- daftar ----------
+  function rowsHtml() {
+    var q = fQuery.trim().toLowerCase(), out = '', n = 0;
+    data().forEach(function (p, i) {
+      var g = p.game || 'lainnya';
+      if (fGame !== 'all' && g !== fGame) return;
+      if (q && String(p.nama || '').toLowerCase().indexOf(q) < 0) return;
+      n++;
+      var coret = Number(p.harga_asli) || 0;
+      out += '<div class="kt-row" data-i="' + i + '" role="button" tabindex="0">' +
+        '<div class="kt-prod"><div class="kt-ic">' + (ICON[String(g).toLowerCase()] || '🛍') + '</div>' +
+          '<div class="kt-txt"><div class="kt-name">' + (esc(p.nama) || '(belum diberi nama)') + '</div>' +
+          '<div class="kt-sub">' + esc(label(g)) + (p.is_promo ? ' · <span class="kt-promo">Promo</span>' : '') + '</div></div></div>' +
+        '<div class="kt-c-mdl kt-mdl">' + rp(p.harga_modal) + '</div>' +
+        '<div class="kt-price">' + rp(p.harga) + (coret > 0 ? '<s>' + rp(coret) + '</s>' : '') + '</div>' +
+        '<div>' + stokHtml(p.stok) + '</div>' +
+        '<button type="button" class="kt-more" aria-label="Edit produk">⋮</button>' +
+      '</div>';
+    });
+    if (!n) return '<div class="kt-empty">Produk tidak ditemukan.</div>';
+    return '<div class="kt-th"><span>Produk</span><span class="kt-c-mdl">Harga modal</span><span>Harga jual</span><span>Stok</span><span></span></div>' + out;
+  }
+  function renderRows() { var b = $('kt-rows'); if (b) b.innerHTML = rowsHtml(); }
+
+  function render() {
+    var box = $('kat-list');
+    if (!box) return;
+    var list = data();
+    if (!list.length) { box.innerHTML = '<p class="note">Katalog masih kosong.</p>'; return; }
+    var gl = games();
+    try { catalogGames = gl; } catch (e) {}
+    if (fGame === null || (fGame !== 'all' && gl.indexOf(fGame) < 0)) fGame = gl[0];
+
+    box.innerHTML =
+      '<div class="kt-head"><p>Kelola harga, modal, stok, dan promo produk.</p>' +
+        '<button type="button" class="kt-add" id="kt-add">+ Tambah Produk</button></div>' +
+      '<div class="kt-tools"><input type="search" id="kt-q" placeholder="Cari produk…" value="' + esc(fQuery) + '" aria-label="Cari produk">' +
+        '<select id="kt-g" aria-label="Pilih game">' +
+          gl.map(function (g) { return '<option value="' + esc(g) + '"' + (g === fGame ? ' selected' : '') + '>' + esc(label(g)) + '</option>'; }).join('') +
+          '<option value="all"' + (fGame === 'all' ? ' selected' : '') + '>Semua game</option>' +
+        '</select></div>' +
+      '<div class="kt-box" id="kt-rows">' + rowsHtml() + '</div>';
+
+    if (!wired) {
+      wired = true;
+      box.addEventListener('click', function (e) {
+        if (e.target.closest('#kt-add')) { openModal(-1); return; }
+        var row = e.target.closest('.kt-row');
+        if (row) openModal(parseInt(row.getAttribute('data-i'), 10));
+      });
+      box.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var row = e.target.closest && e.target.closest('.kt-row');
+        if (row && e.target === row) { e.preventDefault(); openModal(parseInt(row.getAttribute('data-i'), 10)); }
+      });
+      box.addEventListener('input', function (e) {
+        if (e.target.id === 'kt-q') { fQuery = e.target.value; renderRows(); }
+      });
+      box.addEventListener('change', function (e) {
+        if (e.target.id === 'kt-g') { fGame = e.target.value; renderRows(); }
+      });
     }
-    if (b.closest('#sec-kat') && !box.contains(b) && /tambah\s+produk/i.test(b.textContent)) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      open();
+  }
+
+  // ---------- pop up ----------
+  function field(id, text, type, extra) {
+    return '<div class="kt-f"><label for="' + id + '">' + text + '</label><input id="' + id + '" type="' + type + '"' + (extra || '') + '></div>';
+  }
+  function ensureModal() {
+    if ($('kt-bd')) return;
+    var bd = document.createElement('div');
+    bd.id = 'kt-bd';
+    bd.innerHTML =
+      '<div id="kt-dlg" role="dialog" aria-modal="true" aria-labelledby="kt-title">' +
+        '<div class="kt-dh"><h3 id="kt-title"></h3><button type="button" class="kt-x" id="kt-x" aria-label="Tutup">✕</button></div>' +
+        '<div class="kt-f" id="kt-fg"><label for="kt-game">Game</label><select id="kt-game"></select></div>' +
+        field('kt-nama', 'Nama produk', 'text', ' maxlength="80" autocomplete="off"') +
+        '<div class="kt-2">' +
+          field('kt-modal', 'Harga modal', 'number', ' min="0" inputmode="numeric"') +
+          field('kt-jual', 'Harga jual', 'number', ' min="0" inputmode="numeric"') +
+        '</div>' +
+        '<div class="kt-2">' +
+          field('kt-coret', 'Harga coret', 'number', ' min="0" inputmode="numeric"') +
+          '<div class="kt-f"><label for="kt-stok">Stok</label><input id="kt-stok" type="number" step="1" inputmode="numeric"></div>' +
+        '</div>' +
+        '<div class="kt-hint" style="margin:-6px 0 10px">Harga coret 0 = tidak ditampilkan. Stok -1 = tak terbatas.</div>' +
+        '<label class="kt-chk"><input type="checkbox" id="kt-promo"> Tampilkan di banner Promo</label>' +
+        '<div class="kt-err" id="kt-err" role="alert"></div>' +
+        '<div class="kt-btns"><button type="button" id="kt-cancel">Batal</button><button type="button" class="kt-pri" id="kt-save">Simpan</button></div>' +
+      '</div>';
+    document.body.appendChild(bd);
+    bd.addEventListener('click', function (e) { if (e.target === bd) closeModal(); });
+    $('kt-x').addEventListener('click', closeModal);
+    $('kt-cancel').addEventListener('click', closeModal);
+    $('kt-save').addEventListener('click', saveModal);
+    bd.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+      else if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); saveModal(); }
+    });
+  }
+  function openModal(i) {
+    ensureModal();
+    editIdx = i;
+    var gl = games();
+    var p = i >= 0 ? data()[i] : null;
+    if (i >= 0 && !p) return;
+    $('kt-title').textContent = p ? ('Edit ' + (p.nama || 'produk')) : 'Tambah produk';
+    $('kt-fg').style.display = p ? 'none' : '';
+    $('kt-game').innerHTML = gl.map(function (g) { return '<option value="' + esc(g) + '">' + esc(label(g)) + '</option>'; }).join('');
+    if (!p) $('kt-game').value = (fGame && fGame !== 'all') ? fGame : gl[0];
+    $('kt-nama').value = p ? (p.nama || '') : '';
+    $('kt-modal').value = p ? (Number(p.harga_modal) || 0) : 0;
+    $('kt-jual').value = p ? (Number(p.harga) || 0) : '';
+    $('kt-coret').value = p ? (Number(p.harga_asli) || 0) : 0;
+    $('kt-stok').value = p ? (p.stok === undefined || p.stok === null ? -1 : Number(p.stok)) : -1;
+    $('kt-promo').checked = !!(p && p.is_promo);
+    $('kt-err').textContent = '';
+    $('kt-bd').classList.add('show');
+    setTimeout(function () { var el = $('kt-nama'); if (el) el.focus(); }, 50);
+  }
+  function closeModal() { var bd = $('kt-bd'); if (bd) bd.classList.remove('show'); }
+
+  function saveModal() {
+    var err = function (m) { $('kt-err').textContent = m; };
+    var nama = $('kt-nama').value.trim();
+    var modal = Number($('kt-modal').value) || 0;
+    var jual = Number($('kt-jual').value);
+    var coret = Number($('kt-coret').value) || 0;
+    var stokRaw = $('kt-stok').value.trim();
+    var stok = stokRaw === '' ? -1 : Number(stokRaw);
+    var promo = $('kt-promo').checked;
+
+    if (!nama) return err('Nama produk wajib diisi.');
+    if (!(jual > 0)) return err('Harga jual harus lebih dari 0.');
+    if (modal < 0 || coret < 0) return err('Harga tidak boleh negatif.');
+    if (!Number.isInteger(stok) || stok < -1) return err('Stok: isi -1 untuk tak terbatas, atau angka 0 ke atas.');
+
+    if (editIdx >= 0) {
+      catalogEdit(editIdx, 'nama', nama);
+      catalogEdit(editIdx, 'harga_modal', modal);
+      catalogEdit(editIdx, 'harga', jual);
+      catalogEdit(editIdx, 'harga_asli', coret);
+      catalogEdit(editIdx, 'stok', stok);
+      catalogEdit(editIdx, 'is_promo', promo);
+    } else {
+      var g = $('kt-game').value;
+      catalogData.push({ game: g, nama: nama, harga: jual, harga_asli: coret, harga_modal: modal, stok: stok, is_promo: promo ? 1 : 0 });
+      if (fGame !== 'all') fGame = g;
+      var st = $('kat-status'); if (st) st.textContent = 'Produk baru belum disimpan.';
     }
-  }, true);
+    closeModal();
+    render();
+    // Sama seperti tombol Simpan di bawah: tanya konfirmasi lalu kirim ke server
+    if (typeof saveCatalog === 'function') saveCatalog();
+  }
+
+  window.renderCatalog = render;
 })();
 </script>
 
