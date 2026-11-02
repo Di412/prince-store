@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRINCE STORE - Top Up Game Murah, Cepat & Aman</title>
+<meta name="description" content="Top up Mobile Legends, Free Fire, dan Roblox murah, cepat, dan aman.">
+<link rel="icon" href="logo-profil.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="announce" id="announce" hidden></div>
+<header class="nav">
+  <a class="brand" href="#"><img class="logo" id="brandLogo" src="logo-header.png" alt="" height="40"> <span id="brandText">PRINCE<b>.STORE</b></span></a>
+  <nav>
+    <a href="#trackSection">Cek Transaksi</a>
+    <a href="#faq">FAQ</a>
+    <a id="csLink" class="btn-sm" target="_blank" rel="noopener">CS Admin</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="carousel" id="carousel" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Banner promo"></div>
+  <div class="hero-cta">
+    <h1 id="heroTitle">Top Up Game Murah</h1>
+    <p id="heroSub"></p>
+    <a class="btn" href="#games">Top Up Sekarang</a>
+  </div>
+</section>
+
+<section class="wrap" id="favWrap">
+  <h2 id="favTitle">🔥 Produk Favorit</h2>
+  <p class="sub">Item paling sering dibeli hari ini</p>
+  <div class="grid" id="favList"></div>
+</section>
+
+<section class="wrap" id="games">
+  <h2 id="gamesTitle">🎮 Pilih Game</h2>
+  <p class="sub">Harga mulai terjangkau</p>
+  <div class="grid" id="gameList"></div>
+</section>
+
+<section class="wrap" id="promoWrap" hidden>
+  <div class="card promo" id="promoBox"></div>
+</section>
+
+<section class="wrap why" id="whyWrap">
+  <h2 id="whyTitle"></h2>
+  <div class="grid" id="whyList"></div>
+</section>
+
+<section class="wrap" id="orderSection" hidden>
+  <img class="gbanner" id="gameBanner" alt="">
+  <div class="selected">
+    <div><small>Game Terpilih</small><h2 id="gameName"></h2><p class="sub">Layanan 24 jam nonstop</p></div>
+    <button class="btn-ghost" id="changeGame">Ganti Game</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card pad step">
+        <h3><i>1</i> Data Akun</h3>
+        <label>Username / User ID</label>
+        <input id="userId" placeholder="Masukkan ID">
+        <div id="zoneBox" hidden>
+          <label>Zone ID</label>
+          <input id="zoneId" placeholder="Zone ID">
+        </div>
+        <small id="idHint"></small>
+      </div>
+
+      <div class="card pad step">
+        <h3><i>2</i> Pilih Produk</h3>
+        <div class="items" id="itemList"></div>
+      </div>
+
+      <div class="card pad step">
+        <h3><i>3</i> Pilih Metode Pembayaran</h3>
+        <div class="pay" id="payList"></div>
+        <div class="pdetail" id="payDetail" hidden></div>
+      </div>
+
+      <div class="card pad step">
+        <h3><i>4</i> Selesai</h3>
+        <label>No. WhatsApp aktif</label>
+        <div class="phone"><span>+62</span><input id="wa" inputmode="numeric" placeholder="81234567890"></div>
+        <small>Status pesanan dikirim lewat WhatsApp.</small>
+      </div>
+    </div>
+
+    <aside class="card pad summary">
+      <h3>Ringkasan Pesanan</h3>
+      <dl>
+        <dt>Game</dt><dd id="sGame">-</dd>
+        <dt>Akun target</dt><dd id="sAcc">-</dd>
+        <dt>Item</dt><dd id="sItem">-</dd>
+        <dt>Metode bayar</dt><dd id="sPay">-</dd>
+        <dt>Harga item</dt><dd id="sPrice">Rp 0</dd>
+        <dt>Biaya penanganan</dt><dd id="sFee">Rp 0</dd>
+      </dl>
+      <div class="total"><span>Total</span><b id="sTotal">Rp 0</b></div>
+      <button class="btn full" id="buyBtn">Beli Sekarang</button>
+      <small id="closedNote" class="closed" hidden></small>
+      <small>Pastikan data sudah benar. Transaksi tidak dapat dibatalkan.</small>
+    </aside>
+  </div>
+</section>
+
+<section class="wrap faq" id="faq">
+  <h2>Pertanyaan Umum</h2>
+  <p class="sub">Jawaban cepat sebelum kamu menghubungi admin.</p>
+  <div id="faqList"></div>
+</section>
+
+<section class="wrap track" id="trackSection">
+  <h2>Sudah order?</h2>
+  <p class="sub">Lacak pesanan dengan ID transaksi.</p>
+  <button class="btn" id="trackBtn">Cek Pesanan</button>
+</section>
+
+<footer>
+  <nav class="flinks" id="footLinks"><a href="syarat-refund.html#syarat">Syarat & Ketentuan</a><a href="syarat-refund.html#refund">Refund</a><a href="#faq">FAQ</a></nav>
+  <p class="paylogos" id="payLogos"></p>
+  <img class="footer-logo" id="footerLogo" src="images/footer-logo.png" alt="" hidden>
+  <p id="footerText"></p>
+</footer>
+
+<!-- Modal konfirmasi -->
+<div class="modal" id="confirmModal" hidden>
+  <div class="box">
+    <h3>Konfirmasi Pesanan</h3>
+    <p class="sub">Periksa detail, lakukan pembayaran, lalu lampirkan bukti.</p>
+    <dl id="confirmDetail"></dl>
+    <div class="payinfo" id="payInfo"></div>
+    <label>Lampirkan bukti pembayaran (JPG, PNG, WEBP, PDF. Maks 4 MB)</label>
+    <input type="file" id="proof" accept="image/*,.pdf">
+    <div class="row">
+      <button class="btn-ghost" data-close>Batal</button>
+      <button class="btn" id="sendProof">Konfirmasi & Kirim Bukti</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal hasil / lacak -->
+<div class="modal" id="infoModal" hidden>
+  <div class="box">
+    <h3 id="infoTitle"></h3>
+    <div id="infoBody"></div>
+    <div class="row"><button class="btn" data-close>Tutup</button></div>
+  </div>
+</div>
+
+<div id="receipt" aria-hidden="true"></div>
+<script src="script.js"></script>
+</body>
+</html>
